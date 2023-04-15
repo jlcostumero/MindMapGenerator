@@ -5,15 +5,21 @@ import os
 import re
 from markupsafe import escape
 from flask import Flask, render_template, request
-from pyngrok import ngrok
+from pyngrok import ngrok, conf
 
 app = Flask(__name__)
 
 openai.api_key=os.environ['api_key']
 ngrokToken=os.environ['ngrokToken']
+conf.get_default().auth_token = ngrokToken
+# Open a TCP ngrok tunnel to the SSH server
+# connection_string = ngrok.connect(22, "tcp").public_url
+
+# ssh_url, port = connection_string.strip("tcp://").split(":")
+# print(f" * ngrok tunnel available, access with `ssh root@{ssh_url} -p{port}`")
 
 # Open a ngrok tunnel to the HTTP server
-public_url = ngrok.connect(port=5000, auth_token=ngrokToken).public_url
+public_url = ngrok.connect(port=5000).public_url
 print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}/\"".format(public_url, 5000))
 
 # Update any base URLs to use the public ngrok URL
