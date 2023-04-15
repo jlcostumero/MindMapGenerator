@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 openai.api_key=os.environ['api_key']
 ngrokToken=os.environ['ngrokToken']
-conf.get_default().auth_token = ngrokToken
+conf.auth_token = ngrokToken
 # Open a TCP ngrok tunnel to the SSH server
 # connection_string = ngrok.connect(22, "tcp").public_url
 
