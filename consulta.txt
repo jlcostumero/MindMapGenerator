@@ -1,0 +1,50 @@
+﻿messages.append({"role":"user","content": "dato el siguiente articulo.: 
+[inicio articulo] 
+[articulo]
+[fin articulo]. 
+Formato:
+Organizar toda la informacion la informacion del articulo en temas en diferentesn niveles de categorias para la realizacion de un mapa mental con la estructura del siguiente formato json:
+{
+  "map": {
+	{
+		"name": "Root node",
+		"children": [{
+				"name": "Level 1 - Node 1",
+			"description": "Descripcion 1",
+			 "icon": "insert_chart",
+			 "keywords": ["keywords 1", "keywords 2"],
+				"children": [{
+						"name": "Level 2 - Node 1"
+					},
+					{
+						"name": "Level 2 - Node 2"
+					}
+				]
+			},
+			{
+				"name": "Level 1 - Node 2",
+			"description": "Descripcion 2",
+					 "icon": "insert_chart",
+					 "keywords": ["keywords 1", "keywords 2"],
+				"children": [{
+						"name": "Level 2 - Node 3"
+					},
+					{
+						"name": "Level 2 - Node 4"
+					}
+				]
+			}
+		]
+	} 
+  }
+}
+Requisitos:
+0-La propietad name del nivel 0 será el nodo inicial del arbol no tendra descripcion.
+1-Debera haber todos los subniveles anidados para cubrir el contenido de todo el articulo
+2-No se deberia perder ninguna idea del texto en la descripcion.
+3-En la propiedad name se pondra el titulo de la categoria
+4-En la propiedad description se pondra contenido sintetizado pero completo
+5-la propiedad icon, el nombre del icono de la clase de family=Material+Icons que mes se ajuste al tema.
+6-Anidar tantos niveles como sea necesario, no importa que se repitan los conceptos de la descripcion en niveles inferiores. 
+7-EL ultimo nivel de la anidacion jerarquica seran de puntos o palablas clave de la seccion superior y no llevaran descripcion. 
+8-En la propiedad keywords sera un array de palabaras o conceptos importantes de la seccion. No usar Keywords que estan en la pripiedad name.

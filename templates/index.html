@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Generador de texto</title>
+        <!-- Incluir Materialize CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+
+	.spinner-container {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+
+
+  </style>
+    </head>
+    <body>
+        <nav>
+            <div class="nav-wrapper teal">
+                <a href="#" class="brand-logo center">Generador de Mapas de Contenido</a>
+            </div>
+        </nav>
+        <div class="container">
+            <form id="myForm"  method="POST" action="/generar">
+                <div class="input-field">
+                    <label for="texto">Ingrese su texto:</label>
+                    <textarea name="texto" id="texto" class="materialize-textarea"></textarea>
+                </div>
+                <button class="btn waves-effect waves-light" type="submit" id="action" name="action">Generar
+                    <i class="material-icons right">send</i>
+                </button>
+            </form>
+        </div>
+        <!-- Incluir Materialize JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+		<div id="spinner" class="spinner-container" style="display:none;">
+			<div class="preloader-wrapper big active">
+				<div class="spinner-layer spinner-blue-only">
+					<div class="circle-clipper left">
+						<div class="circle"></div>
+					</div>
+					<div class="gap-patch">
+						<div class="circle"></div>
+					</div>
+					<div class="circle-clipper right">
+						<div class="circle"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			const submitButton  = document.getElementById("action");
+			const spinner = document.getElementById("spinner");
+			const myForm = document.getElementById("myForm");
+
+			submitButton.addEventListener('click', function() {
+				spinner.style.display = 'block';
+				submitButton.disabled = true;
+				myForm.submit();
+			});
+		</script>
+    </body>
+</html>
