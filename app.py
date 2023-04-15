@@ -8,7 +8,7 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-openai.api_key=""
+openai.api_key=os.environ['api_key']
 
 
 contenido = ""
