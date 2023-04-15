@@ -5,13 +5,18 @@ import os
 import re
 from markupsafe import escape
 from flask import Flask, render_template, request
-from flask_ngrok import run_with_ngrok
+from pyngrok import ngrok
 
 app = Flask(__name__)
-run_with_ngrok(app)  # Start ngrok when app is run
 
 openai.api_key=os.environ['api_key']
 
+# Open a ngrok tunnel to the HTTP server
+public_url = ngrok.connect(5000).public_url
+print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}/\"".format(public_url, 5000))
+
+# Update any base URLs to use the public ngrok URL
+app.config["BASE_URL"] = public_url
 
 contenido = ""
 with open('query.txt', 'r', encoding='utf-8') as archivo:
@@ -58,5 +63,4 @@ def quitar_texto(json_string):
 if __name__ == '__main__':
     app.run(debug=True)
     
-
     
