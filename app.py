@@ -19,7 +19,7 @@ conf.auth_token = ngrokToken
 # print(f" * ngrok tunnel available, access with `ssh root@{ssh_url} -p{port}`")
 
 # Open a ngrok tunnel to the HTTP server
-public_url = ngrok.connect(port=5000).public_url
+public_url = ngrok.connect(port=5000)
 print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}/\"".format(public_url, 5000))
 
 # Update any base URLs to use the public ngrok URL
