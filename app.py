@@ -10,9 +10,10 @@ from pyngrok import ngrok
 app = Flask(__name__)
 
 openai.api_key=os.environ['api_key']
+ngrokToken=os.environ['ngrokToken']
 
 # Open a ngrok tunnel to the HTTP server
-public_url = ngrok.connect(5000).public_url
+public_url = ngrok.connect(port=5000, auth_token=ngrokToken).public_url
 print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}/\"".format(public_url, 5000))
 
 # Update any base URLs to use the public ngrok URL
