@@ -59,7 +59,7 @@
 			const texto = document.getElementById("texto");
 
 			submitButton.addEventListener('click', function() {
-				if(texto.value.length < 100){
+				if(texto.value.length < 14000){
 					spinner.style.display = 'block';
 					submitButton.disabled = true;
 					myForm.submit();
