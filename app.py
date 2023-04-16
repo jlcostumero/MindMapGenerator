@@ -5,26 +5,13 @@ import os
 import re
 from markupsafe import escape
 from flask import Flask, render_template, request
-from pyngrok import ngrok, conf
+from flask_ngrok import run_with_ngrok
 
 app = Flask(__name__)
+run_with_ngrok(app)
 
 openai.api_key=os.environ['api_key']
-ngrokToken=os.environ['ngrokToken']
-conf.auth_token = ngrokToken
-# ngrok.set_auth_token(ngrokToken)
-# Open a TCP ngrok tunnel to the SSH server
-# connection_string = ngrok.connect(22, "tcp").public_url
 
-# ssh_url, port = connection_string.strip("tcp://").split(":")
-# print(f" * ngrok tunnel available, access with `ssh root@{ssh_url} -p{port}`")
-
-# Open a ngrok tunnel to the HTTP server
-public_url = ngrok.connect(port=5000)
-print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}/\"".format(public_url, 5000))
-
-# Update any base URLs to use the public ngrok URL
-app.config["BASE_URL"] = public_url
 
 contenido = ""
 with open('query.txt', 'r', encoding='utf-8') as archivo:
@@ -69,6 +56,6 @@ def quitar_texto(json_string):
         raise ValueError('No se encontró JSON válido en la cadena de texto')
         
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
     
     

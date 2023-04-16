@@ -28,7 +28,7 @@
             <form id="myForm"  method="POST" action="/generar">
                 <div class="input-field">
                     <label for="texto">Ingrese su texto:</label>
-                    <textarea name="texto" id="texto" class="materialize-textarea"></textarea>
+                    <textarea name="texto" id="texto" class="materialize-textarea" maxlength="15000"></textarea>
                 </div>
                 <button class="btn waves-effect waves-light" type="submit" id="action" name="action">Generar
                     <i class="material-icons right">send</i>
@@ -56,11 +56,14 @@
 			const submitButton  = document.getElementById("action");
 			const spinner = document.getElementById("spinner");
 			const myForm = document.getElementById("myForm");
+			const texto = document.getElementById("texto");
 
 			submitButton.addEventListener('click', function() {
-				spinner.style.display = 'block';
-				submitButton.disabled = true;
-				myForm.submit();
+				if(texto.value.length < 100){
+					spinner.style.display = 'block';
+					submitButton.disabled = true;
+					myForm.submit();
+				}
 			});
 		</script>
     </body>
