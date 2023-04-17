@@ -37,17 +37,22 @@
 	    parent.appendChild(ul);
 	    var li = document.createElement("li");
 	    li.textContent = '';
-	if(level === 3){
-		li.classList.add("active");
-	}
+		if(level === 3){
+			li.classList.add("active");
+		}
 		ul.classList.add("collapsible");
 		var header = document.createElement("div");
 		header.textContent = '';
 		header.classList.add("collapsible-header");
 		var size = 50 - (4 * level);
 		header.innerHTML = node.name;
-		header.innerHTML = header.innerHTML + "<i class='material-icons  left more'  style='font-size: " + size + "px'>expand_more</i>";
-		header.innerHTML = header.innerHTML + "<i class='material-icons  left less' style='font-size: " + size + "px;display: none;'>expand_less</i>";
+		if(level === 3){
+			header.innerHTML = header.innerHTML + "<i class='material-icons  left more'  style='font-size: " + size + "px;display: none;'>expand_more</i>";
+			header.innerHTML = header.innerHTML + "<i class='material-icons  left less' style='font-size: " + size + "px'>expand_less</i>";
+		}else{
+			header.innerHTML = header.innerHTML + "<i class='material-icons  left more'  style='font-size: " + size + "px'>expand_more</i>";
+			header.innerHTML = header.innerHTML + "<i class='material-icons  left less' style='font-size: " + size + "px;display: none;'>expand_less</i>";
+		}
 		header.innerHTML = "<i class='material-icons ' style='font-size: " + size + "px'>" + node.icon + "</i>"  + header.innerHTML;
 		header.innerHTML = "<h" + level + "><b><span style='font-weight: 400;'>" + header.innerHTML + "</span></b></h" + level + ">";
 		li.appendChild(header);
