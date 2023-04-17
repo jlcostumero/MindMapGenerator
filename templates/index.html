@@ -57,6 +57,11 @@
 			const spinner = document.getElementById("spinner");
 			const myForm = document.getElementById("myForm");
 			const texto = document.getElementById("texto");
+			
+			texto.addEventListener("paste", function(e) {
+					texto.click();
+					miInput.value += miInput.value + " ";
+				  });
 
 			submitButton.addEventListener('click', function() {
 				if(texto.value.length < 14000){
