@@ -44,6 +44,7 @@ def generar():
 
 def quitar_texto(json_string):
     json_string = json_string.replace('\n', ' ')
+    json_string = corregir_json(json_string)
     # Utilizar una expresión regular para buscar cualquier texto que esté antes o después del JSON
     regex = r'^[\s\S]*?(\{.*\})[\s\S]*?$'
     match = re.search(regex, json_string)
@@ -54,6 +55,21 @@ def quitar_texto(json_string):
     else:
         # Si no se encontró una coincidencia, lanzar un error
         raise ValueError('No se encontró JSON válido en la cadena de texto')
+        
+
+def corregir_json(cadena_json):
+    # Analizar la cadena JSON en un objeto Python
+    objeto_json = json.loads(cadena_json)
+
+    # Convertir el objeto Python en una cadena JSON nuevamente
+    cadena_json_corregida = json.dumps(objeto_json)
+
+    # Buscar patrones en la cadena JSON y agregar comas faltantes
+    cadena_json_corregida = re.sub(r'}\s*{', '},{', cadena_json_corregida)
+    cadena_json_corregida = re.sub(r']\s*{', '],{', cadena_json_corregida)
+    cadena_json_corregida = re.sub(r'}\s*\]', '}]', cadena_json_corregida)
+
+    return cadena_json_corregida
         
 if __name__ == '__main__':
     app.run()
