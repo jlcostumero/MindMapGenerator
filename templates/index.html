@@ -59,9 +59,12 @@
 			const texto = document.getElementById("texto");
 			
 			texto.addEventListener("paste", function(e) {
-					texto.click();
-					miInput.value += miInput.value + " ";
-				  });
+					setTimeout(function() {
+				  // Ajusta la altura del <textarea> para acomodar el contenido
+				  texto.style.height = "auto";
+				  texto.style.height = texto.scrollHeight + "px";
+				}, 0);
+			  });
 
 			submitButton.addEventListener('click', function() {
 				if(texto.value.length < 14000){
