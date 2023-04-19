@@ -249,7 +249,7 @@
 		  $(".less", this).toggle()
 	  });
       // Llamada al servicio REST para obtener los nombres de los maps
-      $.get("http://localhost:5000/maps", function (data) {
+      $.get("/maps", function (data) {
         // Generación de la lista de maps
         var mapsList = $("#maps-list");
         $.each(data.maps, function (index, map) {
@@ -258,12 +258,6 @@
           li.append(a);
           a.click(function () {
             window.location.href = map;
-            // Llamada al servicio REST para obtener el contenido del map seleccionado
-            // $.get("http://localhost:5000/map/" + map, function(data) {
-            // 	// Mostrar el contenido del map en un diálogo modal
-            // 	$("#map-content").text(data);
-            // 	$("#map-modal").modal("show");
-            // });
           });
           mapsList.append(li);
         });
