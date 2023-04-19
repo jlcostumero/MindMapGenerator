@@ -7,7 +7,8 @@ Organizar toda la informacion la informacion del articulo en temas en diferentes
 {
   "map": {
 	{
-		"name": "Root node",
+		"name": "Nivel 0",
+		"icon": "label",
 		"children": [{
 				"name": "Level 1 - Node 1",
 			"description": "Descripcion 1",
@@ -39,7 +40,7 @@ Organizar toda la informacion la informacion del articulo en temas en diferentes
   }
 }
 Requisitos:
-0-La propietad name del nivel 0 será el nodo inicial del arbol no tendra descripcion.
+0-En nivel 0 solo habra propiedad name sera el titulo general del tema y propiedad icon, será el nodo inicial del arbol, el nivel 0 no tendra nunca descripcion
 1-Debera haber todos los subniveles anidados para cubrir el contenido de todo el articulo
 2-No se deberia perder ninguna idea del texto en la descripcion.
 3-En la propiedad name se pondra el titulo de la categoria

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-    <head>
+
+<head>
         <title>Generador de texto</title>
         <!-- Incluir Materialize CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-
 	.spinner-container {
 		position: fixed;
 		top: 50%;
@@ -14,14 +14,26 @@
 		transform: translate(-50%, -50%);
 	}
 
+		/* Establecer la anchura máxima del contenido del sidebar */
+		#sidebar-content {
+			max-width: 200px;
+		}
 
-
+		/* Establecer el estilo de recorte de texto */
+		#sidebar-content a {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
   </style>
-    </head>
-    <body>
+</head>
+
+<body>
         <nav>
             <div class="nav-wrapper teal">
                 <a href="#" class="brand-logo center">Generador de Mapas de Contenido</a>
+			<a href="#" data-target="maps-list" class="left sidenav-trigger show-on-large"><i
+					class="material-icons">menu</i></a>
             </div>
         </nav>
         <div class="container">
@@ -31,7 +43,7 @@
                     <textarea name="texto" id="texto" class="materialize-textarea" maxlength="15000"></textarea>
                 </div>
                 <button class="btn waves-effect waves-light" type="submit" id="action" name="action">Generar
-                    <i class="material-icons right">send</i>
+				<i class="material-icons right0">send</i>
                 </button>
             </form>
         </div>
@@ -52,27 +64,61 @@
 				</div>
 			</div>
 		</div>
+	<ul id="maps-list" class="sidenav">
+	</ul>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 		<script>
 			const submitButton  = document.getElementById("action");
 			const spinner = document.getElementById("spinner");
 			const myForm = document.getElementById("myForm");
 			const texto = document.getElementById("texto");
 			
-			texto.addEventListener("paste", function(e) {
-					setTimeout(function() {
+		texto.addEventListener("paste", function (e) {
+			setTimeout(function () {
 				  // Ajusta la altura del <textarea> para acomodar el contenido
 				  texto.style.height = "auto";
 				  texto.style.height = texto.scrollHeight + "px";
 				}, 0);
 			  });
 
-			submitButton.addEventListener('click', function() {
-				if(texto.value.length < 14000){
+		submitButton.addEventListener('click', function () {
+			if (texto.value.length < 14000) {
 					spinner.style.display = 'block';
 					submitButton.disabled = true;
 					myForm.submit();
 				}
 			});
+
+		$(document).ready(function () {
+			// Llamada al servicio REST para obtener los nombres de los maps
+			$.get("http://localhost:5000/maps", function (data) {
+				// Generación de la lista de maps
+				var mapsList = $("#maps-list");
+				$.each(data.maps, function (index, map) {
+					var li = $("<li>", { class: "waves-effect" });
+					var a = $("<a>", { href: "#", text: map });
+					li.append(a);
+					li.click(function () {
+						window.location.href = "load/" + map;
+						// Llamada al servicio REST para obtener el contenido del map seleccionado
+						// $.get("http://localhost:5000/map/" + map, function(data) {
+						// 	// Mostrar el contenido del map en un diálogo modal
+						// 	$("#map-content").text(data);
+						// 	$("#map-modal").modal("show");
+						// });
+					});
+					mapsList.append(li);
+				});
+			});
+			$('.sidenav').sidenav();
+		});
+
+		document.addEventListener("DOMContentLoaded", function () {
+			var elems = document.querySelectorAll(".sidenav");
+			var instances = M.Sidenav.init(elems);
+		});
+
 		</script>
-    </body>
+</body>
+
 </html>
