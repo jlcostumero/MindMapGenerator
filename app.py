@@ -42,6 +42,7 @@ def generar():
         print(reply)
         texto_generado = eliminar_texto_izquierda_derecha(reply)
         texto_generado = quitar_texto(reply)
+        texto_generado = corregir_json(texto_generado)
         objeto_json = json.loads(texto_generado)
         nombreFichero = request.remote_addr + '-' + quitar_caracteres_especiales(objeto_json['map']['name']) + ".txt"
         with open("diagrams/" + nombreFichero, "w") as file:
@@ -70,7 +71,7 @@ def load(name):
     # Leer el contenido del archivo
     with open(f"./diagrams/{name}", 'r') as f:
         contenido = f.read()
-
+    contenido = corregir_json(contenido)
     return render_template('map.html', texto_generado=contenido)
 
 
@@ -148,6 +149,7 @@ def quitar_texto(json_string):
 def corregir_json(cadena_json):
 
     # Buscar patrones en la cadena JSON y agregar comas faltantes
+    cadena_json_corregida = re.sub(r'(?<=\{)\s*\{', '', cadena_json)
     cadena_json_corregida = re.sub(r'}\s*{', '},{', cadena_json_corregida)
     cadena_json_corregida = re.sub(r'{\s*{', '{', cadena_json_corregida)
     cadena_json_corregida = re.sub(r']\s*{', '],{', cadena_json_corregida)

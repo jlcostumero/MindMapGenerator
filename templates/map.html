@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
-
   .spinner-container {
 			position: fixed;
 			top: 50%;
@@ -42,14 +41,15 @@
 
     #texto {
       position: relative;
-      background-color: rgba(0,0,0,0.75);
-      color: #fff; /* color blanco */
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      /* color blanco */
     }
 
     #caption {
-      color: #fff; /* color blanco */
+      color: #fff;
+      /* color blanco */
     }
-
   </style>
 </head>
 
@@ -70,6 +70,18 @@
 	 </div>
   </div>
   </div>
+  <div class="row">
+    <div class="input-field col s12">
+      <div class="container">
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="input-field col s12">
+      <div class="container">
+      </div>
+    </div>
+  </div>
   <div id="spinner" class="spinner-container" style="display:none;">
     <div class="preloader-wrapper big active">
       <div class="spinner-layer spinner-blue-only">
@@ -86,21 +98,27 @@
     </div>
   </div>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <div class="row"  id="bottom-container" >
+  <div class="row" id="bottom-container">
     <div class="col s12">
       <div class="container">
         <div class="card-content" style="height: calc(100% - 64px); padding: 0;">
-          <div class="row" style="margin-bottom: 0;">
+          <div class="row " style="margin-bottom: 0;">
         <form id="myForm" method="POST" action="/generar">
-          <div class="input-field col s11" style="display: flex; align-items: center;">
+              <div class="row">
+                <div class="input-field col s12   " style="display: flex; align-items:  flex-end;">
             <label for="texto" style="color: #00f">Ingrese su texto:</label>
             <textarea name="texto" id="texto" class="materialize-textarea" maxlength="15000"></textarea>
           </div>
-          <div class="input-field  col s1" style="display: flex; align-items: center;">
-            <button class="btn waves-effect waves-light" type="submit" id="action" name="action">
-              <i class="material-icons right0">send</i>
+              </div>
+              <div class="row">
+                <div class="col s11   ">
+                </div>
+                <div class=" col s1  right-align">
+                  <button class="btn waves-effect waves-light align-rigth" type="submit" id="action" name="action">
+                    <i class="material-icons right0  ">send</i>
             </button>
           </div>
+              </div>
         </form>
       </div>
     </div>
