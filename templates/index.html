@@ -91,7 +91,7 @@
 
 		$(document).ready(function () {
 			// Llamada al servicio REST para obtener los nombres de los maps
-			$.get("http://localhost:5000/maps", function (data) {
+			$.get("/maps", function (data) {
 				// Generación de la lista de maps
 				var mapsList = $("#maps-list");
 				$.each(data.maps, function (index, map) {
