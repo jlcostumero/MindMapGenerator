@@ -96,10 +96,10 @@
 				var mapsList = $("#maps-list");
 				$.each(data.maps, function (index, map) {
 					var li = $("<li>", { class: "waves-effect" });
-					var a = $("<a>", { href: "#", text: map });
+					var a = $("<a>", { href: "#", text: map.name });
 					li.append(a);
 					li.click(function () {
-						window.location.href = "load/" + map;
+						window.location.href = "diagram/" + map.id;
 						// Llamada al servicio REST para obtener el contenido del map seleccionado
 						// $.get("http://localhost:5000/map/" + map, function(data) {
 						// 	// Mostrar el contenido del map en un diálogo modal

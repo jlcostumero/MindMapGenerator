@@ -61,7 +61,7 @@
           class="material-icons">menu</i></a>
 		</div>
 	</nav>
-  <ul id="maps-list" class="sidenav">
+  <ul id="maps-list" class="sidenav sidenav-fixed left-align">
   </ul>
   <div class="row">
   <div class="input-field col s12">
@@ -108,6 +108,7 @@
                 <div class="input-field col s12   " style="display: flex; align-items:  flex-end;">
             <label for="texto" style="color: #00f">Ingrese su texto:</label>
             <textarea name="texto" id="texto" class="materialize-textarea" maxlength="15000"></textarea>
+                  <input type="hidden" id="id" name="id" value="{{ id | safe }}" />
           </div>
               </div>
               <div class="row">
@@ -266,16 +267,26 @@
         $(".more", this).toggle()
 		  $(".less", this).toggle()
 	  });
+      var id = "{{ id | safe }}";
+      if (id !== ""){
+        id = "/" + id;
+      }
       // Llamada al servicio REST para obtener los nombres de los maps
-      $.get("/maps", function (data) {
+      $.get("/maps" + id, function (data) {
         // Generación de la lista de maps
         var mapsList = $("#maps-list");
+        const rutaActual = window.location.pathname;
         $.each(data.maps, function (index, map) {
-          var li = $("<li>", { class: "waves-effect" });
-          var a = $("<a>", { href: "#", text: map });
+          var li;
+          if(map.id ==="{{ idMap | safe }}") {
+            li = $("<li>", { class: "collection-item waves-effect active" });
+          } else{
+            li = $("<li>", { class: "collection-item waves-effect" });
+          }
+          var a = $("<a>", { href: "#", text: map.name });
           li.append(a);
           a.click(function () {
-            window.location.href =  map;
+            window.location.assign(window.location.origin + "/diagram/" + map.id);
           });
           mapsList.append(li);
         });
