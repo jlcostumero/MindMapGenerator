@@ -50,7 +50,7 @@ MapasColeccion = db["map"]
 # MapasColeccion.create_index([('name', 1)], unique=False)
 
 
-openai.api_key="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"
+openai.api_key=""
 
 
 contenido = ""
