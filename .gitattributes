@@ -1,0 +1,8 @@
+# Configuración de GitHub Linguist
+# Tratar librerías externas y bundles compilados de JS como 'vendored'
+# para que el lenguaje principal reconocido del proyecto sea Python.
+
+js/* linguist-vendored
+js/** linguist-vendored
+resources/* linguist-vendored
+resources/** linguist-vendored
