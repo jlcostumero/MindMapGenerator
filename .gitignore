@@ -1,0 +1,35 @@
+# Variables de entorno y secretos
+.env
+*.env
+*.key
+*.cer
+*.csr
+*.pem
+
+# Almacenamiento local y datos de sesión
+data/
+data/sessions/
+data/maps/
+data/lists/
+
+# Archivos de volcado temporal y logs
+diagrams/*
+!diagrams/.gitkeep
+*.log
+
+# Caches y bytecode de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# IDEs y SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,43 @@
+﻿Apartir de un contenido se ha desarrollado la estructura de un mapa mental de varios niveles con los titulos de cada nivel y un id de niveles. 
+Necesitamos crear las descripciones para extender la explicacion de la cada seccion.
+dado el contenido: 
+[inicio contenido]
+[contenido]
+[fin contenido].
+dada la siguiente estructura de secciones del mapa mental por id: 
+[inicio estructura]
+[estructura]
+[fin estructura]
+
+El contenido puede ser uno de los dos tipos siguientes: A- Tema generico. B- Texto explicativo con detalles.
+La estructura tiene los titulos de un mapa mental de distintas secciones anidadas identificadas por un ID separado con puntos. 
+
+Formato descripciones:
+clasificar el contenido en (A) o (B) y a partir de esa clasificacion crear un texto con la descripcion del tema por secciones.  Si la informacion del contenido es texto explicativo (A) obtener de ese texto el contenido de la descripcion, si es tema generico (B) desarrollar la descripcion a partir de los titulos y el contexto. Generar las descipciones en el siguiente json;
+{
+"descriptions":
+[
+{
+"id": "1", "description":"descripcion 1", "keywords":["palabra clave 1", "palabra clave 2"]
+},
+{
+"id": "1.1", "description":"descripcion 1.1, "keywords":["palabra clave 1", "palabra clave 2"]"
+},
+{
+"id": "1.1", "description":"descripcion 1.2, "keywords":["palabra clave 1", "palabra clave 2"]"
+}
+]
+}
+
+Requisitos:
+[excepciones]
+1.Por cada elemento del array, obtener la informacion y rellanar la propiedad description. 
+2.En la descripcion se desarrollara el tema a tratar. La descripcion no debe de ser un concepto generico ni empezaar como "descripcion de..." o tampoco autoreferente ni empezar como "En esta seccion..."
+3. Debe de ser una descripción concisa pero informativa, sin detalles abstractos o genéricos.
+4.No sera una descripcon de lo que debe tener sino el contenido en si mismo ya desarrollado. No se diran recursos genericos como "en esta seccion ..."
+5.Extraer los keywords del texto generado por descripcion y añadirlos al array de la propiedad keywords.  
+6. Las descripciones de cada seccion deben contener al menos 100 palabras.
+
+[Ejemplo CORRECTO} de estilo narrativo descripcion a partir de titulo generado correctamente:
+Titulo:Desarrollo de la Guerra Civil
+Descripcion: El desarrollo de la Guerra Civil estuvo marcado por una serie de episodios bélicos de gran intensidad y violencia. Entre ellos destacan el golpe de Estado del 18 de julio de 1936, que dio inicio al conflicto, el bloqueo internacional que sufrió la República durante la contienda, y la Batalla del Ebro, que fue una de las más largas y sangrientas de todo el conflicto.

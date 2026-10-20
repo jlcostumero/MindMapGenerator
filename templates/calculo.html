@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>🪙 Simulador BTC LTV con CAGR, Gasto e Inflación</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh}
+    .container{max-width:1200px;margin:auto;background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden}
+    .header{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:#fff;padding:30px;text-align:center}
+    .header h1{margin:0;font-size:2.2em;font-weight:600}
+    .form-container{padding:30px;background:#f8f9fa}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-bottom:30px}
+    .form-section{background:#fff;padding:25px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+    .form-section h3{margin:0 0 20px;color:#333;font-size:1.1em;border-bottom:2px solid #667eea;padding-bottom:10px}
+    .input-group{margin-bottom:16px}
+    .input-group label{display:block;margin-bottom:8px;font-weight:600;color:#555;font-size:.95em}
+    .input-group input,.input-group select{width:100%;padding:12px 15px;border:2px solid #e0e0e0;border-radius:8px;font-size:1em;transition:border-color .3s ease;box-sizing:border-box}
+    .input-group input:focus,.input-group select:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1)}
+    .simulate-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;padding:15px 40px;font-size:1.1em;font-weight:600;border-radius:50px;cursor:pointer;transition:transform .2s ease;display:block;margin:20px auto;box-shadow:0 4px 15px rgba(102,126,234,.3)}
+    .simulate-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4)}
+    .charts-container{padding:30px;background:#fff}
+    canvas{margin-bottom:30px;border-radius:8px}
+    .chart-title{margin:0 0 8px;font-size:1.05em;color:#333;font-weight:700}
+    .icon{margin-right:6px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Simulador BTC LTV (Loan-to-Value)</h1>
+      <p>Comparativa: Préstamo (rollover) vs Venta directa de Bitcoin</p>
+    </div>
+
+    <div class="form-container">
+      <div class="form-grid">
+        <!-- Gastos -->
+        <div class="form-section">
+          <h3><span class="icon">💸</span>Configuración de Gastos</h3>
+          <div class="input-group">
+            <label for="usdStartAmount">Gasto anual inicial (USD constantes)</label>
+            <input id="usdStartAmount" type="number" value="24000" />
+          </div>
+          <div class="input-group">
+            <label for="usdEndAmount">Gasto anual final (USD constantes)</label>
+            <input id="usdEndAmount" type="number" value="24000" />
+          </div>
+          <div class="input-group">
+            <label for="distributionModel">Modelo de distribución temporal</label>
+            <select id="distributionModel">
+              <option value="lineal">Distribución Lineal</option>
+              <option value="log">Distribución Logarítmica</option>
+              <option value="exp" selected>Distribución Exponencial Inversa</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- BTC -->
+        <div class="form-section">
+          <h3><span class="icon">₿</span>Parámetros de Bitcoin</h3>
+          <div class="input-group">
+            <label for="btcGrowthStart">CAGR BTC inicial (% anual)</label>
+            <input id="btcGrowthStart" type="number" value="47" />
+          </div>
+          <div class="input-group">
+            <label for="btcGrowthEnd">CAGR BTC final (% anual)</label>
+            <input id="btcGrowthEnd" type="number" value="17" />
+          </div>
+          <div class="input-group">
+            <label for="btcInitialPrice">Precio inicial BTC (USD)</label>
+            <input id="btcInitialPrice" type="number" value="120000" />
+          </div>
+          <div class="input-group">
+            <label for="btcInitialHoldings">Cantidad inicial de BTC</label>
+            <input id="btcInitialHoldings" type="number" value="0.5" step="0.00000001" />
+          </div>
+        </div>
+
+        <!-- Financieros -->
+        <div class="form-section">
+          <h3><span class="icon">🧮</span>Parámetros Financieros</h3>
+          <div class="input-group">
+            <label for="inflationRate">Tasa de inflación anual (%)</label>
+            <input id="inflationRate" type="number" value="5" />
+          </div>
+          <div class="input-group">
+            <label for="interestRate">Interés del préstamo anual (%)</label>
+            <input id="interestRate" type="number" value="10" />
+          </div>
+          <div class="input-group">
+            <label for="years">Duración del análisis (años)</label>
+            <input id="years" type="number" value="30" />
+          </div>
+          <div class="input-group">
+            <label for="loanStartYear">Año de inicio del retiro/gasto</label>
+            <input id="loanStartYear" type="number" value="5" min="1" />
+          </div>
+        </div>
+      </div>
+
+      <button class="simulate-btn" onclick="simulate()">▶️ Ejecutar Simulación</button>
+    </div>
+
+    <div class="charts-container">
+      <h3 class="chart-title">📦 BTC total (apilado): libre vs deuda (principal + intereses previos + interés del año) y venta</h3>
+      <canvas id="btcChart" height="120"></canvas>
+
+      <h3 class="chart-title">💵 Valor en USD de BTC restante (ambas estrategias)</h3>
+      <canvas id="btcValueChart" height="80"></canvas>
+
+      <h3 class="chart-title">🧾 Gasto anual (USD constantes vs ajustados por inflación)</h3>
+      <canvas id="spendingChart" height="80"></canvas>
+
+      <h3 class="chart-title">📈 CAGR BTC por año</h3>
+      <canvas id="cagrChart" height="80"></canvas>
+
+      <h3 class="chart-title">💰 Precio estimado de BTC (USD)</h3>
+      <canvas id="btcPriceChart" height="80"></canvas>
+    </div>
+  </div>
+
+  <script>
+    let chart, spendingChart, cagrChart, btcPriceChart, btcValueChart;
+
+    function generateVariableArray(start, end, years, model) {
+      const result = [];
+      for (let t = 0; t < years; t++) {
+        let value;
+        if (model === 'lineal') {
+          value = start + (end - start) * (t / Math.max(1, years - 1));
+        } else if (model === 'log') {
+          const scale = Math.log(Math.max(2, years));
+          value = end + (start - end) * (Math.log(Math.max(1, years - t)) / scale);
+        } else if (model === 'exp') {
+          const k = 3 / Math.max(1, years);
+          value = end + (start - end) * Math.exp(-k * t);
+        } else {
+          value = start;
+        }
+        result.push(value);
+      }
+      return result;
+    }
+
+    function simulate() {
+      const usdStart = Number(document.getElementById("usdStartAmount").value);
+      const usdEnd = Number(document.getElementById("usdEndAmount").value);
+      const growthStart = Number(document.getElementById("btcGrowthStart").value) / 100;
+      const growthEnd = Number(document.getElementById("btcGrowthEnd").value) / 100;
+      const model = document.getElementById("distributionModel").value;
+      const inflation = Number(document.getElementById("inflationRate").value) / 100;
+      const interestRate = Number(document.getElementById("interestRate").value) / 100;
+      const btcPriceStart = Number(document.getElementById("btcInitialPrice").value);
+      const years = parseInt(document.getElementById("years").value, 10);
+      const btcInitialHoldings = Number(document.getElementById("btcInitialHoldings").value);
+      const loanStartYear = parseInt(document.getElementById("loanStartYear").value, 10) - 1;
+
+      const gastoConstante = generateVariableArray(usdStart, usdEnd, years, model);
+      const adjustedUsdSeries = [];
+      for (let y = 0; y < years; y++) {
+        adjustedUsdSeries.push(y >= loanStartYear ? gastoConstante[y] * Math.pow(1 + inflation, y) : 0);
+      }
+      const cagrArray = generateVariableArray(growthStart, growthEnd, years, model);
+
+      // precios BTC por año (índice = año)
+      const btcPrices = [btcPriceStart];
+
+      const labels = [];
+      const principalCumBTC = [];
+      const interestPrevBTC = [];   // intereses acumulados hasta el año anterior
+      const interestYearBTC = [];   // interés del año
+      const freeBTCbars = [];
+      const btcRemainingSellStrategy = [];
+      const cagrPercent = [];
+
+      // Estado USD préstamo
+      let totalDebtUSD = 0;
+      let cumulativePrincipalUSD = 0;
+      let cumulativeInterestUSD = 0;
+
+      // Estado venta directa
+      let btcLeftSelling = btcInitialHoldings;
+
+      for (let year = 0; year < years; year++) {
+        labels.push("Año " + (year + 1));
+        const adjustedUsd = adjustedUsdSeries[year];
+        const cagr = cagrArray[year];
+        cagrPercent.push(Number((cagr * 100).toFixed(2)));
+
+        const priceThisYear = btcPrices[year];
+
+        // ---- Préstamo con rollover ----
+        let interestThisYearUSD = 0;
+        const prevInterestUSD = cumulativeInterestUSD;
+
+        if (year >= loanStartYear) {
+          cumulativePrincipalUSD += adjustedUsd;
+          // interés del año sobre (deuda previa + principal del año)
+          interestThisYearUSD = (totalDebtUSD + adjustedUsd) * interestRate;
+          cumulativeInterestUSD += interestThisYearUSD;
+          // deuda total actualizada
+          totalDebtUSD = (totalDebtUSD + adjustedUsd) + interestThisYearUSD;
+        }
+
+        // Conversiones a BTC
+        const principalBTC = cumulativePrincipalUSD / priceThisYear;
+        const prevInterestToBTC = prevInterestUSD / priceThisYear;
+        const yearInterestToBTC = interestThisYearUSD / priceThisYear;
+
+        // BTC libre = total - (principal + intereses previos + interés del año)
+        const usedBTC = principalBTC + prevInterestToBTC + yearInterestToBTC;
+        const freeBTC = Math.max(btcInitialHoldings - usedBTC, 0);
+
+        principalCumBTC.push(principalBTC);
+        interestPrevBTC.push(prevInterestToBTC);
+        interestYearBTC.push(yearInterestToBTC);
+        freeBTCbars.push(freeBTC);
+
+        // ---- Venta directa (escenario alternativo) ----
+        if (year < loanStartYear) {
+          btcLeftSelling = btcInitialHoldings; // 0.5 constante
+        } else {
+          const spendBTC = adjustedUsd / priceThisYear;
+          btcLeftSelling = Math.max(btcLeftSelling - spendBTC, 0);
+        }
+        btcRemainingSellStrategy.push(btcLeftSelling);
+
+        // Precio siguiente año
+        btcPrices.push(priceThisYear * (1 + cagr));
+      }
+
+      renderMainChart(
+        labels, principalCumBTC, interestPrevBTC, interestYearBTC,
+        freeBTCbars, btcRemainingSellStrategy, btcPrices.slice(0, years), btcInitialHoldings
+      );
+      renderBtcValueChart(labels, freeBTCbars, btcRemainingSellStrategy, btcPrices.slice(0, years));
+      renderSpendingChart(labels, adjustedUsdSeries, gastoConstante);
+      renderCagrChart(labels, cagrPercent);
+      renderBtcPriceChart(labels, btcPrices.slice(0, years));
+    }
+
+    function renderMainChart(labels, principalBTC, interestPrevBTC, interestYearBTC, freeBTC, sellBTC, priceData, totalBTC) {
+      const ctx = document.getElementById("btcChart").getContext("2d");
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Deuda acumulada (BTC del principal)', data: principalBTC, backgroundColor:'rgba(54,100,255,0.85)', stack:'total', yAxisID:'yBar' },
+            { label: 'Intereses acumulados previos (BTC)', data: interestPrevBTC, backgroundColor:'rgba(220,0,0,0.85)', stack:'total', yAxisID:'yBar' },
+            { label: 'Interés del año (BTC)', data: interestYearBTC, backgroundColor:'rgba(255,140,0,0.9)', stack:'total', yAxisID:'yBar' },
+            { label: 'BTC libre (Estrategia Préstamo)', data: freeBTC, backgroundColor:'rgba(0,200,0,0.85)', stack:'total', yAxisID:'yBar' },
+            {
+              label: 'BTC restante si se vende (Estrategia Venta)',
+              data: sellBTC,
+              type: 'line',
+              borderColor: 'orange',
+              backgroundColor: 'rgba(255,165,0,0.18)',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 3,
+              yAxisID: 'yLine'
+            }
+          ]
+        },
+        options: {
+          responsive:true,
+          plugins:{
+            legend:{position:'bottom'},
+            tooltip:{
+              mode:'index', intersect:false,
+              callbacks:{
+                label:function(context){
+                  const idx = (typeof context.dataIndex === 'number') ? context.dataIndex : 0;
+                  const btc = Number(context.parsed.y || 0);
+                  const price = Number(priceData[idx] || 0);
+                  const usd = btc * price;
+
+                  const name = context.dataset.label || '';
+                  // % del total SOLO para la línea de venta y la barra verde de BTC libre
+                  if (name.indexOf('BTC restante si se vende') !== -1 || name.indexOf('BTC libre (Estrategia Préstamo)') !== -1) {
+                    const pct = totalBTC ? (btc / totalBTC) * 100 : 0;
+                    return `${name}: ${btc.toFixed(6)} BTC (${pct.toFixed(1)}%) | $${usd.toLocaleString(undefined,{maximumFractionDigits:2})}`;
+                  }
+                  // Resto de datasets: sin %
+                  return `${name}: ${btc.toFixed(6)} BTC | $${usd.toLocaleString(undefined,{maximumFractionDigits:2})}`;
+                },
+                footer:function(items){
+                  if(!items || items.length === 0) return '';
+                  const idx = (typeof items[0].dataIndex === 'number') ? items[0].dataIndex : 0;
+                  let sum = 0;
+                  for (let i=0;i<items.length;i++){
+                    const lbl = items[i].dataset.label;
+                    if (
+                      lbl === 'Deuda acumulada (BTC del principal)' ||
+                      lbl === 'Intereses acumulados previos (BTC)' ||
+                      lbl === 'Interés del año (BTC)' ||
+                      lbl === 'BTC libre (Estrategia Préstamo)'
+                    ) {
+                      sum += Number(items[i].parsed.y || 0);
+                    }
+                  }
+                  const usdTotal = sum * Number(priceData[idx] || 0);
+                  return 'Total BTC (barras): ' + sum.toFixed(6) + ' | $' + usdTotal.toLocaleString(undefined,{maximumFractionDigits:2});
+                }
+              }
+            }
+          },
+          scales:{
+            x:{stacked:true},
+            // Alineamos ambos ejes a 0.5
+            yBar:{stacked:true, position:'left', title:{display:true,text:'BTC (barras = total)'}, min:0, max: totalBTC, grid:{drawOnChartArea:true}},
+            yLine:{stacked:false, position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'BTC (línea venta)'}, min:0, max: totalBTC}
+          }
+        }
+      });
+    }
+
+    function renderBtcValueChart(labels, loanBtcData, sellBtcData, priceData){
+      const ctx = document.getElementById("btcValueChart").getContext("2d");
+      if (btcValueChart) btcValueChart.destroy();
+
+      const loanValueData = loanBtcData.map(function(btc,i){ return Number(btc) * Number(priceData[i] || 0); });
+      const sellValueData = sellBtcData.map(function(btc,i){ return Number(btc) * Number(priceData[i] || 0); });
+
+      btcValueChart = new Chart(ctx,{
+        type:'line',
+        data:{labels: labels, datasets:[
+          {label:'BTC libre - Préstamo',data:loanBtcData,borderColor:'rgba(0,200,0,1)',backgroundColor:'rgba(0,200,0,0.15)',borderWidth:3,fill:true,yAxisID:'yBTC'},
+          {label:'BTC restante - Venta',data:sellBtcData,borderColor:'orange',backgroundColor:'rgba(255,165,0,0.15)',borderWidth:3,fill:true,yAxisID:'yBTC'},
+          {label:'Valor USD - Préstamo',data:loanValueData,borderColor:'rgba(0,120,0,1)',backgroundColor:'rgba(0,120,0,0.08)',borderWidth:2,fill:false,yAxisID:'yUSD'},
+          {label:'Valor USD - Venta',data:sellValueData,borderColor:'rgba(255,140,0,1)',backgroundColor:'rgba(255,140,0,0.08)',borderWidth:2,fill:false,yAxisID:'yUSD'}
+        ]},
+        options:{
+          responsive:true,
+          plugins:{legend:{position:'bottom'},tooltip:{mode:'index',intersect:false,
+            callbacks:{label:function(ctx){
+              const i = (typeof ctx.dataIndex === 'number') ? ctx.dataIndex : 0;
+              const v = Number(ctx.parsed.y || 0);
+              const price = Number(priceData[i] || 0);
+              if(ctx.dataset.yAxisID === 'yBTC'){
+                const usd = v * price;
+                return ctx.dataset.label + ': ' + v.toFixed(6) + ' BTC | $' + usd.toLocaleString(undefined,{maximumFractionDigits:2});
+              } else {
+                const btc = price ? (v / price) : 0;
+                return ctx.dataset.label + ': $' + v.toLocaleString(undefined,{maximumFractionDigits:2}) + ' | ' + btc.toFixed(6) + ' BTC';
+              }
+            }}}},
+          scales:{yBTC:{type:'linear',position:'left',title:{display:true,text:'BTC'},min:0},
+                  yUSD:{type:'linear',position:'right',title:{display:true,text:'USD'},grid:{drawOnChartArea:false},min:0}}
+        }
+      });
+    }
+
+    function renderSpendingChart(labels, adjusted, constantes){
+      const ctx = document.getElementById("spendingChart").getContext("2d");
+      if (spendingChart) spendingChart.destroy();
+      spendingChart = new Chart(ctx,{
+        type:'line',
+        data:{labels: labels, datasets:[
+          {label:'Gasto ajustado por inflación (USD reales)',data:adjusted,borderColor:'purple',backgroundColor:'rgba(128,0,128,0.2)',borderWidth:2,fill:true},
+          {label:'Gasto en USD constantes',data:constantes,borderColor:'gray',borderDash:[5,5],backgroundColor:'rgba(128,128,128,0.1)',borderWidth:1,fill:false}
+        ]},
+        options:{responsive:true,plugins:{legend:{position:'bottom'},tooltip:{mode:'index',intersect:false,callbacks:{
+          label:function(c){ return c.dataset.label + ': $' + Number(c.parsed.y || 0).toLocaleString(undefined,{maximumFractionDigits:2}); }
+        }}},scales:{y:{title:{display:true,text:'USD'}}}}
+      });
+    }
+
+    function renderCagrChart(labels, data){
+      const ctx = document.getElementById("cagrChart").getContext("2d");
+      if (cagrChart) cagrChart.destroy();
+      cagrChart = new Chart(ctx,{
+        type:'line',
+        data:{labels: labels, datasets:[{label:'CAGR BTC por año (%)',data: data,borderColor:'teal',backgroundColor:'rgba(0,128,128,0.2)',borderWidth:2,fill:true}]},
+        options:{responsive:true,plugins:{legend:{position:'bottom'},tooltip:{mode:'index',intersect:false,callbacks:{
+          label:function(c){ return c.dataset.label + ': ' + Number(c.parsed.y || 0) + '%'; }
+        }}},scales:{y:{title:{display:true,text:'% CAGR BTC'}}}}
+      });
+    }
+
+    function renderBtcPriceChart(labels, data){
+      const ctx = document.getElementById("btcPriceChart").getContext("2d");
+      if (btcPriceChart) btcPriceChart.destroy();
+      btcPriceChart = new Chart(ctx,{
+        type:'line',
+        data:{labels: labels, datasets:[{label:'Precio del BTC (USD)',data: data,borderColor:'gold',backgroundColor:'rgba(255,215,0,0.2)',borderWidth:2,fill:true}]},
+        options:{responsive:true,plugins:{legend:{position:'bottom'},tooltip:{mode:'index',intersect:false,callbacks:{
+          label:function(c){ return c.dataset.label + ': $' + Number(c.parsed.y || 0).toLocaleString(undefined,{maximumFractionDigits:2}); }
+        }}},scales:{y:{title:{display:true,text:'USD'}}}}
+      });
+    }
+
+    // Simulación inicial
+    simulate();
+  </script>
+</body>
+</html>

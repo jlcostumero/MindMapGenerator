@@ -3,21 +3,117 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Árbol expandible con Materialize CSS</title>
+  <title>Neural Maps AI: {{ name | safe }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generador de mapas mentales en forma de estructura de contenido web y diagramas utilizando inteligencia artificial. Crea diagramas interactivos y organiza tus ideas de manera visual.">
+  <link rel="shortcut icon" type="image/svg+xml" href="../svg" sizes="24x24">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+ 	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
   <style>
-  .spinner-container {
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-		}
 
-    /* Establecer la anchura máxima del contenido del sidebar */
-    #sidebar-content {
-      max-width: 200px;
+    .sidenav li>a>i, .sidenav li>a>[class^="mdi-"], .sidenav li>a li>a>[class*="mdi-"], .sidenav li>a>i.material-icons    {
+      margin: 0 0px 0 0;
+      font-size: 1.2rem;
+    }   
+
+    .sidenav li>a {
+        color: rgba(0,0,0,0.87);
+        display: block;
+        font-size:0.75rem;
+        font-weight: 500;
+        height: 48px;
+        line-height: 48px;
+        padding: 0 0px;
+    }
+    
+    .spinner-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+
+    .collapsible2 {
+        margin: 0.3rem 0 0 0;
+    }
+
+    .collapsible2-body {
+        padding: 0.6rem 0.5rem 2rem 2rem;
+    }
+
+    .sidenav li>a.btn, .sidenav li>a.btn-large, .sidenav li>a.btn-small, .sidenav li>a.btn-large, .sidenav li>a.btn-flat, .sidenav li>a.btn-floating {
+        margin: 0px 0px; 
+    }
+
+    .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .flow-text {
+        font-size: 1.2rem;
+    }
+
+    .sidenav::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .sidenav::-webkit-scrollbar-track {
+      background-color: #F5F5F5;
+    }
+
+    .sidenav::-webkit-scrollbar-thumb {
+      background-color: #757575;
+      border-radius: 10px;
+    }
+
+    .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+    /* Estilos para redondear el extremo de la barra que desliza */
+    .sidenav::-webkit-scrollbar-thumb:vertical:last-of-type {
+      border-bottom-right-radius: 10px;
+    }
+
+    .sidenav::-webkit-scrollbar-thumb:vertical:first-of-type {
+      border-top-right-radius: 10px;
+    }
+
+    .input-field>label{
+      z-index: 9999;
+    }
+
+    .input-field {
+        margin-top: 0rem;
+        margin-bottom: 0rem;
+    }
+
+    .dark-mode {
+      background-color: #333333;
+      color: #ffffff;
+    }
+
+    ::-webkit-scrollbar-button {
+      display: none;
+    }
+
+    /* Estilo de la barra de desplazamiento */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+      background-color: #f5f5f5;
+      border-radius: 3px;
+    }
+
+    /* Estilo del deslizador */
+    ::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 3px;
     }
 
     /* Establecer el estilo de recorte de texto */
@@ -25,23 +121,30 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      z-index: 999;
     }
 
     /* Establecer una posición fija para el contenedor */
     #bottom-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: 0;
-        width: 100%;
-        background-color: transparent;
-        z-index: 999;
-      }
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0;
+      width: 100%;
+      background-color: transparent;
+      z-index: 999;
+    }
 
     #texto {
       position: relative;
-      background-color: rgba(0, 0, 0, 0.75);
+      background-color: #fff;
+      color: #000;
+      /* color negro */
+    }
+
+    .dark-mode #texto {
+      background-color: rgba(0, 0, 0, 0.35);
       color: #fff;
       /* color blanco */
     }
@@ -50,39 +153,527 @@
       color: #fff;
       /* color blanco */
     }
+
+    titlePage {
+      display: inline-block; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      vertical-align: middle;
+    }
+    
+    
+    /* Estilos para el modo oscuro de la sidenav-fixed */
+    .dark-mode .sidenav-fixed {
+      background-color: #212121;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a {
+      color: #FFFFFF;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a.btn, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-small, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-flat, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-floating {
+      color: #FFFFFF;
+      background-color: #4CAF50;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a.btn:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-small:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-flat:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-floating:hover {
+      background-color: #388E3C;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li.active>a, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-small, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-flat, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-floating {
+      background-color: #4CAF50;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a>i, 
+    .dark-mode .sidenav-fixed .sidenav li>a>[class^="mdi-"], 
+    .dark-mode .sidenav-fixed .sidenav li>a li>a>[class*="mdi-"], 
+    .dark-mode .sidenav-fixed .sidenav li>a>i.material-icons {
+      color: #FFFFFF;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav::-webkit-scrollbar-thumb {
+      background-color: #FFFFFF;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #CCCCCC;
+    }
+
+    .dark-mode .sidenav li>a>i, 
+    .dark-mode .sidenav li>a>[class^="mdi-"], 
+    .dark-mode .sidenav li>a li>a>[class*="mdi-"], 
+    .dark-mode .sidenav li>a>i.material-icons {
+      margin: 0 0px 0 0;
+      font-size: 1.2rem;
+      color: #fff; /* Cambiamos el color del texto e iconos a blanco */
+    }
+
+    .dark-mode .sidenav li>a {
+      color: #fff; /* Cambiamos el color del texto a blanco */
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      height: 48px;
+      line-height: 48px;
+      padding: 0 0px;
+    }
+
+    .dark-mode .sidenav li>a.btn, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-small, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-flat, 
+    .dark-mode .sidenav li>a.btn-floating {
+      margin: 0px 0px; 
+    }
+
+    .dark-mode .sidenav .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .dark-mode .sidenav .flow-text {
+      font-size: 1.2rem;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-track {
+      background-color: #F5F5F5;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb {
+      background-color: #757575;
+      border-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+    /* Estilos para redondear el extremo de la barra que desliza */
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:last-of-type {
+      border-bottom-right-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:first-of-type {
+      border-top-right-radius: 10px;
+    }.dark-mode .sidenav li>a>i, 
+    .dark-mode .sidenav li>a>[class^="mdi-"], 
+    .dark-mode .sidenav li>a li>a>[class*="mdi-"], 
+    .dark-mode .sidenav li>a>i.material-icons {
+      margin: 0 0px 0 0;
+      font-size: 1.2rem;
+      color: #fff; /* Cambiamos el color del texto e iconos a blanco */
+    }
+
+    .dark-mode .sidenav li>a {
+      color: #fff; /* Cambiamos el color del texto a blanco */
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      height: 48px;
+      line-height: 48px;
+      padding: 0 0px;
+    }
+
+    .dark-mode .sidenav li>a.btn, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-small, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-flat, 
+    .dark-mode .sidenav li>a.btn-floating {
+      margin: 0px 0px; 
+    }
+
+    .dark-mode .sidenav .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .dark-mode .sidenav .flow-text {
+      font-size: 1.2rem;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-track {
+      background-color: #F5F5F5;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb {
+      background-color: #757575;
+      border-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+    /* Estilos para redondear el extremo de la barra que desliza */
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:last-of-type {
+      border-bottom-right-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:first-of-type {
+      border-top-right-radius: 10px;
+    }
+
+
+    body.dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+
+    .dark-mode .spinner-container {
+      color: #fff;
+    }
+
+
+    .dark-mode .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .dark-mode .flow-text {
+      font-size: 1.2rem;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-track {
+      background-color: #333333;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb {
+      background-color: #cfcfcf;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #dcdcdc;
+    }
+
+    .dark-mode #sidebar-content a {
+      color: #fff;
+    }
+
+    .dark-mode #texto {
+      background-color: rgba(255, 255, 255, 0.35);
+      color: #000;
+    }
+
+    .dark-mode #caption {
+      color: #000;
+    }
+
+    .dark-mode .input-field>label{
+      z-index: 9999;
+    }
+
+    .dark-mode .input-field {
+      color: #fff;
+      z-index: 9999;
+    }
+
+    .dark-mode ::-webkit-scrollbar-button {
+      display: none;
+    }
+
+    .dark-mode ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+      background-color: #333333;
+      border-radius: 3px;
+    }
+
+    .dark-mode ::-webkit-scrollbar-thumb {
+      background-color: #cfcfcf;
+      border-radius: 3px;
+    }
+
+    .dark-mode .collapsible-header {
+      color: #fff;
+      background-color: #333333;
+    }
+
+    .dark-mode .collapsible-body {
+      background-color: #424242;
+      color: #fff;
+      border-top: 1px solid #616161;
+    }
+
+    .dark-mode .collection-item.active {
+      background-color: #424242;
+      color: #ffffff;
+    }
+    .dark-mode .collection-item.active .secondary-content i {
+      color: #ffffff;
+    }
+    .dark-mode .collection-item.active:hover {
+      background-color: #616161;
+    }
+    .dark-mode .collection-item.active:active {
+      background-color: #616161;
+    }
+		.node circle {
+      cursor: pointer;
+      fill: #fff;
+      stroke: steelblue;
+      stroke-width: 1.5px;
+		}
+
+		.node text {
+		font-size: 12px;
+		}
+
+		path.link {
+		fill: none;
+		stroke: #ccc;
+		stroke-width: 2.0px;
+		}     
+    
+    .dark-mode path.link {
+		fill: none;
+		stroke: #7461ad;
+		stroke-width: 2.0px;
+		}   
+    
+    .diagram-svg {
+
+      display: block;
+      viewBox: 0 0 100 100;
+    }
+    
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 1); /* agregar transparencia */
+      z-index: 9999; /* asegurarse de que esté por encima de todo */
+      display: none; /* ocultar el div por defecto */
+    }
+
+    .dark-mode .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 1); /* agregar transparencia */
+      z-index: 9999; /* asegurarse de que esté por encima de todo */
+      display: none; /* ocultar el div por defecto */
+    }
+
+    .container {
+        width: 100%;
+    }
+
+    @media only screen and (max-width: 970px) {
+      .collapsible-body {
+          padding: 0.4rem;
+      }
+
+
+      h1 {
+          font-size: 2.2rem;
+          line-height: 110%;
+          margin: 2.8rem 0 1.68rem 0
+      }
+
+      h2 {
+          font-size: 2.06rem;
+          line-height: 110%;
+          margin: 2.3733333333rem 0 1.424rem 0
+      }
+
+      h3 {
+          font-size: 1.7rem;
+          line-height: 110%;
+          margin: 1.9466666667rem 0 1.168rem 0
+      }
+
+      h4 {
+          font-size: 1.5rem;
+          line-height: 110%;
+          margin: 1.52rem 0 .912rem 0
+      }
+
+      h5 {
+          font-size: 1.3rem;
+          line-height: 110%;
+          margin: 1.0933333333rem 0 .656rem 0
+      }
+
+      h6 {
+          font-size: 1.1rem;
+          line-height: 110%;
+          margin: .7666666667rem 0 .46rem 0
+      }
+
+      .flow-text {
+          font-size: 0.85rem;
+      }
+
+      .chip {
+          font-size: 10px;
+      }
+    }
+
+    .expandable-nav {
+      height: auto;
+      min-height: 64px; /* Establece una altura mínima para evitar que se colapse completamente */
+    }
+
+    nav .tooltipped {
+        float: right;
+        position: relative;
+        z-index: 1;
+        height: 56px;
+        margin: 0 18px;
+    }
+
   </style>
 </head>
 
 <body class="flow-text">
-	<nav>
-		<div class="nav-wrapper teal">
-			<a href="#" class="brand-logo center">Mapa de Contenido</a>
-      <a href="#" data-target="maps-list" class="left sidenav-trigger show-on-large"><i
-          class="material-icons">menu</i></a>
-		</div>
-	</nav>
-  <ul id="maps-list" class="sidenav sidenav-fixed left-align">
-  </ul>
-  <div class="row">
-  <div class="input-field col s12">
-    <div class="container">
-		<div id="tree"></div>
-	 </div>
+<div class="navbar-fixed">
+<nav class="navbar-fixed">
+  <div class="nav-wrapper teal expandable-nav">
+    <span class="brand-logo center titlePage hide-on-small-only">
+      <strong>
+        <i class="large material-icons" style="font-size: 4rem">grain</i>
+        <strong style="font-weight: 1000;">Neural Maps <span style="color: red;">AI</span></strong>
+      </strong>
+    </span>
+    <span class="center  hide-on-med-and-up">
+      <strong  style="font-weight: 1000;">
+        <span id="title" >Neural Maps <span style="color: red;">AI</span></span>
+      </strong>
+    </span>
+    <a href="#" data-target="maps-list" id="menu_button" class="left sidenav-trigger show-on-large">
+      <i class="material-icons">menu</i>
+    </a>
+    <a href="#"  class="right tooltipped new badge">
+      <i class="dropdown-trigger material-icons" data-target="dropdown">more_vert</i>
+    </a>
+    <div class="right-align col s1">
+      <ul class="dropdown-content" id="dropdown" tabindex="0" >
+         <li tabindex="0" id="shareDiagram"><a><i class="material-icons">share</i>Compartir Mapa</a></li>
+         <li tabindex="0" id="globlaDiagram"><a><i class="material-icons" >account_tree</i>Ver Mapa</a></li>
+         <li tabindex="0" id="textDiagram"><a><i class="material-icons">description</i>Descargar Texto</a></li>
+         <li tabindex="0" id="deleteDiagram"><a><i class="material-icons">delete</i>Eliminar</a></li>
+         <!-- <li tabindex="0"><a><i class="material-icons">refresh</i>Regenerar Mapa</a></li> -->
+      </ul>           
+   </div>
   </div>
+  
+</nav>
+</div>
+<div class=" row ">
+  <div class="brand-logo center title Page col l3  hide-on-small-only  hide-on-med-only">
+
   </div>
+  <div class="brand-logo center title Page col s12 m12 l9">
+
+    <h1 >
+      <span id="title" >{{ name | safe }}</span>
+    </h1>
+  </div>
+</div>
   <div class="row">
-    <div class="input-field col s12">
+    <ul id="maps-list" class="sidenav sidenav-fixed left-align">
+      <li class="sidenav-header sidenav-fixed hide-on-large-only">
+        <a href="#" data-target="maps-list" class="sidenav-close right"><i class="material-icons" style="color: #fff;;margin: 0 0 0 0;background-color: red;">close</i></a>
+      </li>
+      <li class="sidenav-header sidenav-fixed">
+        <a href="../../" class="btn btn-block"><i class="material-icons left" style="color: #fff;margin: 0 0 0 0;">add</i>Generar Nuevo</a>
+      </li>
+  </div>
+  <div id="sidenav-footer" class="sidenav-footer hide">
+    <li class="collection-item waves-effect col s12 divider"></li>
+    <li class="collection-item waves-effect col s12" >
+      <div class="container">
+        <div class="row">
+          <div class="col s12">
+            Ajustes
+          </div>
+          <div class="col s12 switch">
+            <label>
+              Modo Noche
+              <input id="toggle" type="checkbox">
+              <span class="lever"></span>
+            </label>
+          </div>
+          <div class="col s12 switch">
+            <label>
+              &nbsp;
+            </label>
+          </div>
+        </div>
+      </div>
+    </li>
+
+  </div>
+  <div id="mapsColecction">
+    <div class="row">
+      <div class="col m1 l1 hide-on-small-only">
+      </div>
+      <div class="col s12 m12 l11">
+        <div class="container">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row hide-on-med-and-up">
+    <div class="col m1 l1 hide-on-small-only">
+    </div>
+    <div class="input-field col s12 m12 l11">
       <div class="container">
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="input-field col s12">
+  <div class="row hide-on-med-and-up">
+    <div class="col m1 l1 hide-on-small-only">
+    </div>
+    <div class="input-field col s12 m12 l11">
       <div class="container">
+
       </div>
     </div>
   </div>
+
+  <div class="row hide-on-med-and-up">
+    <div class="col m1 l1 hide-on-small-only">
+    </div>
+    <div class="input-field col s12 m12 l11">
+      <div class="container">
+
+      </div>
+    </div>
+  </div>
+
+
+
   <div id="spinner" class="spinner-container" style="display:none;">
+    <div class="valign-wrapper">
     <div class="preloader-wrapper big active">
       <div class="spinner-layer spinner-blue-only">
         <div class="circle-clipper left">
@@ -95,202 +686,864 @@
           <div class="circle"></div>
         </div>
       </div>
+        <i class="large  material-icons pulse" style="font-size: 4.1rem">grain</i>
+      </div>
+    </div>
+    <div class="progress">
+      <div class="determinate" id="progress-bar" style="width: 0%"></div>
     </div>
   </div>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <div class="row" id="bottom-container">
-    <div class="col s12">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <div class="row" id="bottom-container" hide-on-small-only>
+    <div class="col m0 l4 hide-on-small-only">
+    </div>
+    <div class="col s12 m11 l7  hide-on-small-only">
       <div class="container">
-        <div class="card-content" style="height: calc(100% - 64px); padding: 0;">
+        <div class="card-content" style="height: calc(100% - 64px); padding: 0;border: 1">
           <div class="row " style="margin-bottom: 0;">
-        <form id="myForm" method="POST" action="/generar">
-              <div class="row">
-                <div class="input-field col s12   " style="display: flex; align-items:  flex-end;">
-            <label for="texto" style="color: #00f">Ingrese su texto:</label>
-            <textarea name="texto" id="texto" class="materialize-textarea" maxlength="15000"></textarea>
+            <form id="myForm" method="POST" action="/generar">
+              <div class="row"  style="margin-bottom: 0px">
+                <div class="input-field col s12  z-depth-5  " style="display: flex; align-items:  flex-end;">
+                  <label for="texto">Ingrese su texto:</label>
+                  <textarea name="texto" id="texto" class="materialize-textarea" maxlength="14000" data-length="14000"></textarea>
                   <input type="hidden" id="id" name="id" value="{{ id | safe }}" />
-          </div>
-              </div>
-              <div class="row">
-                <div class="col s11   ">
                 </div>
-                <div class=" col s1  right-align">
-                  <button class="btn waves-effect waves-light align-rigth" type="submit" id="action" name="action">
-                    <i class="material-icons right0  ">send</i>
-            </button>
-          </div>
               </div>
-        </form>
+              <div class="row" style="margin-bottom: 0px">
+                  <div class="row">
+                    <div class="col s3   ">
+                      <label>Tamaño</label>
+                    </div>
+                    <div class="col s2   ">
+                      <input type="range" id="size" min="40" max="100" value="100" />
+                    </div>
+                    <div class="col s5   ">
+                      <spam></spam>
+                    </div>
+                    <div class="col s2   ">
+                <a href="#" class="btn s1 waves-effect waves-light align-rigth" id="add" name="add"><i class="material-icons right" style="color: #fff;">send</i>Añadir</a>
+              </div>
+                    </div>
+                  </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-      </div>
+  </div>
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <i class="material-icons red-text text-darken-4">error</i>
+      <h4>Problema en Generación</h4>
+      <p id="modal-error"></p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">OK</a>
+    </div>
+  </div>
+  <div id="modalOKCancel" class="modal">
+    <div class="modal-content">
+      <h4>¡Atención!</h4>
+      <p id="message"></p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
+      <a href="#!" id="modal-yes-btn" class="waves-effect waves-green btn">Ok</a>
     </div>
   </div>
   <script>
-	// Datos del árbol en formato JSON
-	
+    // Datos del árbol en formato JSON
 
-    var data = {{ texto_generado | safe }};
-	
-	
-	
-	
-	function buildTree(node, parent, level) {
-	    var ul = document.createElement("ul");
-	    parent.appendChild(ul);
-	    var li = document.createElement("li");
-	    li.textContent = '';
+    var maps = [{{ texto_generado | safe }}];
+    var diagrams = { ...maps};
+    var darkmode = "{{ darkmode | safe }}";
+
+    function buildMap(data, diagram, order) {
+      createRow(data.id);
+      var root = document.getElementById("tree"+ data.id);
+      buildTree(data, root, 3, data.id, data.id, data.owner);
+      addKeywordToChildren(diagram); 
+      $("#body"+ data.id).html("");
+      // loadDiagram("body"+ order, diagram, null, null, null);
+    }
+
+    function rebuildMap(data, diagram, oldid) {
+      insertRow(data.id, oldid);
+      var root = document.getElementById("tree"+ data.id);
+      buildTree(data, root, 3, data.id, data.id, data.owner);
+      addKeywordToChildren(diagram); 
+      $("#body"+ data.id).html("");
+    }
+
+    function createRow(order) {
+      var divspace = $("<div>", { id: "space" + order, class: "row"});
+      var div1 = $("<div>", { id: "container" + order, class: "row"});
+      var div11 = $("<div>", { class: "col  l3 hide-on-small-only hide-on-med-only"});
+      var div12 = $("<div>", { class: "col s12 m12 l9"});
+      // if (window.innerWidth >= 1000) {
+      //   div12 = $("<div>", { class: "col s11"});
+      // } else {
+      //   div12 = $("<div>", { class: "col s12"});
+      // }
+      var div121 = $("<div>", { class: "container"});
+      if (order){
+        var div1211 = $("<div>", { id: "tree" + order});
+        div121.append(div1211);
+      }
+      div12.append(div121);
+      div1.append(div11, div12);
+      $("#mapsColecction").append(div1);
+      $("#mapsColecction").append(divspace);
+    }
+
+    function insertRow(id, oldid) {
+      const tree = document.getElementById("tree" + oldid);
+      const space = document.getElementById("space" + oldid);
+      tree.remove();
+      space.remove();
+      var index = maps.findIndex(function(element) {
+        return element.id === id;
+      });
+      if (index !== -1) {
+        index++;
+      }
+      var divspace = $("<div>", { id: "space" + id, class: "row"});
+      var div1 = $("<div>", { id: "container" + id, class: "row"});
+      var div11 = $("<div>", { class: "col  l3 hide-on-small-only hide-on-med-only"});
+      var div12 = $("<div>", { class: "col s12 m12 l9"});
+      var div121 = $("<div>", { class: "container"});
+      if (id){
+        var div1211 = $("<div>", { id: "tree" + id});
+        div121.append(div1211);
+      }
+      div12.append(div121);
+      div1.append(div11, div12);
+      if(maps[index]){
+        var nuevoDiv = document.createElement("div");
+        nuevoDiv.textContent = "Contenido del nuevo div";
+        var div2 = $("#container" + maps[index].id);
+        div2.before(div1);
+        divspace.insertBefore(div2);
+      }else{
+        $("#mapsColecction").append(div1);
+        $("#mapsColecction").append(divspace);
+      }
+    }
+
+    function buildTree(node, parent, level, order, id, owner) {
+      var ul = document.createElement("ul");
+      parent.appendChild(ul);
+      var li = document.createElement("li");
+      li.textContent = '';
       if (level === 3) {
-			li.classList.add("active");
-		}
-		ul.classList.add("collapsible");
-		var header = document.createElement("div");
-		header.textContent = '';
-		header.classList.add("collapsible-header");
-		var size = 50 - (4 * level);
-		header.innerHTML = node.name;
-      if (level === 3) {
-			header.innerHTML = header.innerHTML + "<i class='material-icons  left more'  style='font-size: " + size + "px;display: none;'>expand_more</i>";
-			header.innerHTML = header.innerHTML + "<i class='material-icons  left less' style='font-size: " + size + "px'>expand_less</i>";
+        li.classList.add("active");
+      }
+      ul.classList.add("collapsible");
+      var header = document.createElement("div");
+      header.textContent = '';
+      header.classList.add("collapsible-header");
+      header.classList.add("z-depth-5");
+      var size;
+      if (window.innerWidth >= 1000) {
+        size = 50 - (4 * level);
       } else {
-			header.innerHTML = header.innerHTML + "<i class='material-icons  left more'  style='font-size: " + size + "px'>expand_more</i>";
-			header.innerHTML = header.innerHTML + "<i class='material-icons  left less' style='font-size: " + size + "px;display: none;'>expand_less</i>";
-		}
-		header.innerHTML = "<i class='material-icons ' style='font-size: " + size + "px'>" + node.icon + "</i>"  + header.innerHTML;
-		header.innerHTML = "<h" + level + "><b><span style='font-weight: 400;'>" + header.innerHTML + "</span></b></h" + level + ">";
-		li.appendChild(header);
+        size = 40 - (4 * level);
+      }
+      header.innerHTML = "<div class='row'>";
+      if (level === 3) {
+        header.innerHTML = header.innerHTML + "<i class='material-icons  col s1 left more'  style='margin: 0.1rem 0.1rem 0.1rem 1rem;align-self: center;font-size: " + size + "px;display: none;'>expand_more</i>";
+        header.innerHTML = header.innerHTML + "<i class='material-icons  col s1 left less' style='margin: 0.1rem 0.1rem 0.1rem 1rem;align-self: center;font-size: " + size + "px'>expand_less</i>";
+      } else {
+        header.innerHTML = header.innerHTML + "<i class='material-icons  col s1 left more'  style='margin: 0.1rem 0.1rem 0.1rem 1rem;align-self: center;font-size: " + size + "px'>expand_more</i>";
+        header.innerHTML = header.innerHTML + "<i class='material-icons  col s1 left less' style='margin: 0.1rem 0.1rem 0.1rem 1rem;align-self: center;font-size: " + size + "px;display: none;'>expand_less</i>";
+      }
+      header.innerHTML = header.innerHTML + "<i class='material-icons col s1' style='padding: 0 0  0 0; align-self: center;font-size: " + size + "px'>" + node.icon + "</i>" ;
+      header.innerHTML = header.innerHTML + "<h" + level + " class='col s12' ><strong><span  style='align-self: center;font-weight: 400;'>" + node.name + "</span></strong></h" + level + "></div>";
+      
+      li.appendChild(header);
       if (!node.icon || (node.icon && node.icon === '')) {
-			node.icon = 'remove';
-		}
-		var body = document.createElement("div");
-		body.textContent = '';
-		body.classList.add("collapsible-body");
+        node.icon = 'remove';
+      }
+      var body = document.createElement("div");
+      body.textContent = '';
+      body.classList.add("collapsible-body");
       if (node.description) {
-			var blockquote = document.createElement("blockquote");
-			blockquote.textContent = '';
-			blockquote.innerHTML = node.description;
-			blockquote.innerHTML = blockquote.innerHTML.replace("<blockquote  class='miDiv'>", "<blockquote style='margin: 0px;'>");
-			body.appendChild(blockquote);
-			
-		}
+        var blockquote = document.createElement("blockquote");
+        blockquote.textContent = '';
+        blockquote.innerHTML = node.description;
+        blockquote.innerHTML = blockquote.innerHTML.replace("<blockquote  class='miDiv'>", "<blockquote style='margin: 0px;'>");
+        body.appendChild(blockquote);
+
+      }
       if (node.keywords) {
-			var keyContainer = document.createElement("div");
-			keyContainer.textContent = '';
-			keyContainer.classList.add("chips");
-			keyContainer.classList.add("readonly");
+        var keyContainer = document.createElement("div");
+        keyContainer.textContent = '';
+        keyContainer.classList.add("chips");
+        keyContainer.classList.add("readonly");
         node.keywords.forEach(function (keyword) {
-				var key = document.createElement("div");
-				key.textContent = '';
+          var key = document.createElement("div");
+          key.textContent = '';
           if (keyword.name) {
-					key.innerHTML = node.name;
-					key.innerHTML = "<i class='material-icons'>" + keyword.icon + "</i>"  + capitalizeFirstLetter(keyword.name);
+            key.innerHTML = node.name;
+            key.innerHTML = "<i class='material-icons'>" + keyword.icon + "</i>" + capitalizeFirstLetter(keyword.name);
           } else {
-					key.textContent = capitalizeFirstLetter(keyword);
-				}
-	
-				key.classList.add("chip");
-				keyContainer.appendChild(key);
-	        });
-			body.appendChild(keyContainer);
-		}
-		li.appendChild(body);
-		ul.appendChild(li);
-	    if (node.children && node.children.length > 0) {
-	        // li.classList.add("tree-branch");
-	        // var toggle = document.createElement("span");
-	        // toggle.classList.add("tree-toggle");
-	        // li.insertBefore(toggle, li.firstChild);
-			//<i class="material-icons">check</i>
-	
-	        /*var icon = document.createElement("i");
-	        icon.classList.add("material-icons");
-	        li.insertBefore(icon, li.firstChild);*/
-	
+            key.textContent = capitalizeFirstLetter(keyword);
+          }
+          key.classList.add("z-depth-2");
+          key.classList.add("chip");
+          keyContainer.appendChild(key);
+        });
+        body.appendChild(keyContainer);
+      }
+
+      if(level === 3){
+        var containerDia = document.createElement("div");
+        containerDia.classList.add("right-align");
+        containerDia.classList.add("col");
+        containerDia.classList.add("s1");
+
+        const btnDropdown = document.createElement('button');
+        btnDropdown.setAttribute("class", "dropdown-trigger btn-floating");
+        btnDropdown.setAttribute("data-target", "dropdown" + order);
+        btnDropdown.addEventListener('click', () => {
+          event.stopPropagation();
+        });
+        var dropIcon = document.createElement("i");
+        dropIcon.setAttribute("class", "material-icons");
+        dropIcon.setAttribute("style", "margin-right: 0px");
+        dropIcon.innerHTML = "more_vert";
+        btnDropdown.appendChild(dropIcon);
+
+        const dropdown = document.createElement('ul');
+        dropdown.setAttribute("class", "dropdown-content");
+        dropdown.setAttribute("id", "dropdown" + order);
+
+        if (navigator.share) {
+          const dropdownShare = document.createElement('li');
+          dropdownShare.innerHTML = "<a><i class='material-icons'>share</i>Compartir Mapa</a>";
+          dropdownShare.addEventListener('click', () => {
+            event.stopPropagation();
+            share(order, node.name);
+          });
+          dropdown.appendChild(dropdownShare);
+        }
+
+        const dropdownMap = document.createElement('li');
+        dropdownMap.innerHTML = "<a><i class='material-icons'>account_tree</i>Ver Mapa</a>";
+        dropdownMap.addEventListener('click', () => {
+          toggleOverlay("body" + order, order);
+        });
+        dropdown.appendChild(dropdownMap);
+
+        const dropdownTxt = document.createElement('li');
+        dropdownTxt.innerHTML = "<a><i class='material-icons'>description</i>Descargar Texto</a>";
+        dropdownTxt.addEventListener('click', () => {
+          event.stopPropagation();
+          var link = document.createElement('a');
+          link.href = '/txt/' + id;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+        dropdown.appendChild(dropdownTxt);
+
+        if(owner){
+          const dropdownRefresh = document.createElement('li');
+          dropdownRefresh.innerHTML = "<a><i class='material-icons'>refresh</i>Regenerar Mapa</a>";
+          dropdownRefresh.addEventListener('click', () => {
+              event.stopPropagation();
+              document.getElementById("message").innerHTML = "Va a refrescar el mapa, regenerará el contenido de nuevo con otra estructura y perdera la estructura actual<br>¿Desea continuar?";
+              var modal = document.getElementById("modalOKCancel");
+              var instance = M.Modal.init(modal, {
+                onCloseEnd: function() {
+                  // Se llama cuando se cierra el modal
+                  // Puedes agregar cualquier código que necesites aquí
+                }
+              });
+              instance.open();
+              var yesButton = document.getElementById("modal-yes-btn");
+              var noButton = document.querySelector(".modal-close");
+              yesButton.addEventListener("click", function() {
+                refreshMap(id);
+                instance.close();
+              });
+              noButton.addEventListener("click", function() {
+                instance.close();
+              });
+          });
+
+          dropdown.appendChild(dropdownRefresh);
+          const dropdownDelete = document.createElement('li');
+          dropdownDelete.innerHTML = "<a><i class='material-icons'>delete</i>Eliminar</a>";
+          dropdownDelete.addEventListener('click', () => {
+            event.stopPropagation();
+            document.getElementById("message").innerHTML = "Va a eliminar este mapa<br>¿Desea continuar?";
+            var modal = document.getElementById("modalOKCancel");
+            var instance = M.Modal.init(modal, {
+              onCloseEnd: function() {
+                // Se llama cuando se cierra el modal
+                // Puedes agregar cualquier código que necesites aquí
+              }
+            });
+            instance.open();
+            var yesButton = document.getElementById("modal-yes-btn");
+            var noButton = document.querySelector(".modal-close");
+            yesButton.addEventListener("click", function() {
+              deleteMap(id, "map");
+              instance.close();
+            });
+            noButton.addEventListener("click", function() {
+              instance.close();
+            });
+          });
+          dropdown.appendChild(dropdownDelete);
+
+          dropdown.appendChild(dropdownRefresh);
+        }
+
+        containerDia.appendChild(dropdown);
+        
+        const btnDiadram = document.createElement('button');
+        btnDiadram.setAttribute("class", "btn-floating right tooltipped new badge");
+        btnDiadram.setAttribute("data-position", "right");
+        btnDiadram.setAttribute("data-tooltip", "Mi tooltip");
+        var diagram = document.createElement("i");
+        diagram.setAttribute("class", "material-icons");
+        diagram.innerHTML = "account_tree";
+        btnDiadram.appendChild(diagram);
+        btnDiadram.addEventListener('click', () => {
+          toggleOverlay("body" + order, order);
+        });
+        containerDia.appendChild(btnDropdown);
+        header.appendChild(containerDia);
+        var mapButtonsContainer = document.createElement("div");
+        mapButtonsContainer.id = "mapButtonsContainer";
+        mapButtonsContainer.classList.add("overlay");
+        mapButtonsContainer.style.display = "none";
+        mapButtonsContainer.textContent = '';
+        mapButtonsContainer.id = "mainbody" + order;
+
+
+
+        var mapContainer = document.createElement("div");
+        mapContainer.id = "mapContainer";
+        mapContainer.textContent = '';
+        mapContainer.id = "body" + order;
+        mapContainer.style.scrollBehavior = "auto"
+        mapContainer.style.overflow = "auto";
+        mapContainer.style.height = "100%";
+        mapContainer.style.width = "100%";
+
+        const btn = document.createElement('button');
+        btn.setAttribute("class", "btn-floating right tooltipped");
+        btn.setAttribute("data-position", "left");
+        btn.setAttribute("data-tooltip", "Mi tooltip");
+        var icono = document.createElement("i");
+        icono.setAttribute("class", "material-icons");
+        icono.innerHTML = "web";
+        btn.appendChild(icono);
+        btn.style.zIndex = '9999';
+        btn.addEventListener('click', () => {
+          toggleOverlay("body" + order, order);
+        });
+        const btnImage = document.createElement('button');
+        btnImage.setAttribute("class", "btn-floating right tooltipped");
+        btnImage.setAttribute("data-position", "left");
+        btnImage.setAttribute("data-tooltip", "Mi tooltip");
+        var iconoPdf = document.createElement("i");
+        iconoPdf.setAttribute("class", "material-icons");
+        iconoPdf.innerHTML = "image";
+        btnImage.appendChild(iconoPdf);
+        btnImage.style.zIndex = '9999';
+        btnImage.addEventListener('click', () => {
+          guardarComoImagen("mainbody" + order, node.name);
+        });
+        // const btnPdf = document.createElement('button');
+        // btnPdf.setAttribute("class", "btn-floating right tooltipped");
+        // btnPdf.setAttribute("data-position", "left");
+        // btnPdf.setAttribute("data-tooltip", "Mi tooltip");
+        // var iconoImage = document.createElement("i");
+        // iconoImage.setAttribute("class", "material-icons");
+        // iconoImage.innerHTML = "picture_as_pdf";
+        // btnPdf.appendChild(iconoImage);
+        // btnPdf.style.zIndex = '9999';
+        // btnPdf.addEventListener('click', () => {
+        //   guardarComoPDF("mainbody" + order, node.name);
+        // });
+        mapButtonsContainer.appendChild(btn);
+        //mapButtonsContainer.appendChild(btnPdf);
+        mapButtonsContainer.appendChild(btnImage);
+        mapButtonsContainer.appendChild(mapContainer);
+        body.appendChild(mapButtonsContainer);
+      }
+
+      li.appendChild(body);
+      ul.appendChild(li);
+      if (node.children && node.children.length > 0) {
+        // li.classList.add("tree-branch");
+        // var toggle = document.createElement("span");
+        // toggle.classList.add("tree-toggle");
+        // li.insertBefore(toggle, li.firstChild);
+        //<i class="material-icons">check</i>
+
+        /*var icon = document.createElement("i");
+        icon.classList.add("material-icons");
+        li.insertBefore(icon, li.firstChild);*/
+
         node.children.forEach(function (child) {
-				buildTree(child, body, level + 1);
-	        });
-	    } 
-	
-	
-	}
-	
-	function capitalizeFirstLetter(str) {
-	  var words = str.split(' ');
-	  for (var i = 0; i < words.length; i++) {
-	    var word = words[i];
-	    words[i] = word.charAt(0).toUpperCase() + word.slice(1);
-	  }
-	  return words.join(' ');
-	}
-	
-	
-	function loadData(data) {
-		var root = document.getElementById("tree");
-		buildTree(data, root, 3);
-	
-	}
-	
-	
-	loadData(data.map);
-	
-	
-	var miCheckbox = document.getElementById("descripcion");
-	
+          buildTree(child, body, level + 1, order, id, owner);
+        });
+      }
+
+
+    }
+
+    function deleteMap(id, tipo) {
+      spinner.style.display = 'block';
+      submitButtonAdd.classList.add("disabled");
+      fetch(window.location.origin + "/delete" + tipo + "/" + id, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+          response.json().then(data => {
+            if(data.error){
+              if(data.error !== '0'){
+                var errorMessage = data.error;
+                document.getElementById("modal-error").innerHTML = errorMessage;
+                var modal = document.getElementById("modal1");
+                var instance = M.Modal.init(modal, {
+                  onCloseEnd: function() {
+                    // Se llama cuando se cierra el modal
+                    // Puedes agregar cualquier código que necesites aquí
+                  }
+                });
+                instance.open();
+              }
+            }else if(tipo === "list"){
+              window.location.assign(window.location.origin);
+            }else{
+              const tree = document.getElementById("tree" + id);
+              const space = document.getElementById("space" + id);
+              tree.remove();
+              space.remove();
+            }
+            spinner.style.display = 'none';
+            submitButtonAdd.classList.remove("disabled");
+          })
+      })
+      .catch(error => console.error(error => {
+            alert('error');
+            spinner.style.display = 'none';
+            submitButtonAdd.classList.remove("disabled");
+      })).finally(() => {
+        spinner.style.display = 'none';
+        submitButtonAdd.classList.remove("disabled");
+      });
+    }
+
+    function refreshMap(id) {
+      spinner.style.display = 'block';
+      submitButtonAdd.classList.add("disabled");
+      tipoLlamada = "refresh";
+      idLlamada = id;
+      fetch(window.location.origin + "/refreshmap/" + id, {
+        method: 'POST',
+        headers: {
+          'Connection': 'keep-alive',
+          'Content-Type': 'application/json'
+        }
+      });
+      // .then(response => {
+      //     response.json().then(data => {
+      //       if(data.error){
+      //         if(data.error !== '0'){
+      //           var errorMessage = data.error;
+      //           document.getElementById("modal-error").innerHTML = errorMessage;
+      //           var modal = document.getElementById("modal1");
+      //           var instance = M.Modal.init(modal, {
+      //             onCloseEnd: function() {
+      //               // Se llama cuando se cierra el modal
+      //               // Puedes agregar cualquier código que necesites aquí
+      //             }
+      //           });
+      //           instance.open();
+      //         }
+      //       }else{
+      //         var index = maps.findIndex(function(element) {
+      //           return element.id === id;
+      //         });
+      //         if (index !== -1) {
+      //           maps[index] = data;
+      //           var diagrams = { ...maps};
+      //           rebuildMap(data.map, diagrams[index].map, id);
+      //           $('.dropdown-trigger').dropdown();
+      //           $('.collapsible').collapsible();
+      //           const elemento = document.getElementById("container" + data.id);
+      //           const posicion = elemento.getBoundingClientRect().top;
+      //           window.scrollTo({
+      //             top: posicion,
+      //             behavior: "smooth"
+      //           });
+      //         }
+      //       }
+      //       spinner.style.display = 'none';
+      //       submitButtonAdd.classList.remove("disabled");
+      //     })
+      // })
+      // .catch(error => console.error(error => {
+      //       alert('error');
+      //       spinner.style.display = 'none';
+      //       submitButtonAdd.classList.remove("disabled");
+      // })).finally(() => {
+      //   spinner.style.display = 'none';
+      //   submitButtonAdd.classList.remove("disabled");
+      // });
+    }
+
+    function guardarComoImagen(id, name) {
+      setTimeout(function() {
+          html2canvas(document.getElementById(id)).then(function(canvas) {
+          canvas.toBlob(function(blob) {
+            saveAs(blob, name + '.png');
+          });
+        });
+      }, 100); 
+    }
+
+    function guardarComoPDF(id, name) {
+      html2canvas(document.getElementById(id)).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/png');
+        var imgWidth = canvas.width;
+        var imgHeight = canvas.height;
+        var pdf = new jsPDF(imgWidth > imgHeight ? 'l' : 'p', 'px', [imgWidth, imgHeight]);
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save(name + '.pdf');
+      });
+    }
+
+    function share(id, name) {
+      if (navigator.share) {
+        navigator.share({
+          title: name,
+          url: window.location.origin + "/diagram/{{ idList | safe }}/" + id // Aquí puedes reemplazar con tu URL deseada
+        })
+        .then(() => console.log("Enlace compartido con éxito"))
+        .catch(error => console.error("Error al compartir enlace:", error));
+      }
+    }
+
+    function shareList() {
+      navigator.share({
+        title: "{{ name | safe }}",
+        url: window.location.origin + "/diagram/{{ idList | safe }}" // Aquí puedes reemplazar con tu URL deseada
+      })
+      .then(() => console.log("Enlace compartido con éxito"))
+      .catch(error => console.error("Error al compartir enlace:", error));
+    }
+
+    function toggleOverlay(id, order) {
+    if (order === 0) {
+      id = "body" + maps[0].id;
+    }
+    var idmain = "main" + id;
+    var overlay = document.getElementById(idmain);
+    var map = document.getElementById(id);
+    if (overlay.style.display === "none" && maps.length !== 0) {
+      overlay.style.display = "block";
+      map.remove();
+      var mapContainer = document.createElement("div");
+      mapContainer.id = id;
+      mapContainer.style.scrollBehavior = "auto";
+      mapContainer.style.overflow = "auto";
+      mapContainer.style.height = "100%";
+      mapContainer.style.width = "100%";
+      mapContainer.style.position = "absolute";
+      overlay.appendChild(mapContainer);
+      if (order === 0){
+        $("#" + id).html("");
+        var diagram = {"name" : "{{ name | safe }}", "icon" : "label", children: []};
+        for (var i = 0; i < maps.length; i++) {
+          diagram.children.push({ ...diagrams[i].map});
+        }
+        loadDiagram(id, diagram, null, null, null);
+      }else{
+        var diagram = null;
+        for (var i = 0; i < maps.length; i++) {
+          if (maps[i].id === order) {
+            diagram = diagrams[i];
+            break;
+          }
+        }
+        loadDiagram(id, { ...diagram.map}, null, null, null);
+      }
+      
+    } else {
+      // const canvas = document.createElement('canvas');
+      // canvas.width = overlay.offsetWidth;
+      // canvas.height = overlay.offsetHeight;
+      // const context = canvas.getContext('2d');
+      // context.drawimage(overlay, 0, 0, canvas.width, canvas.height);
+      // const image = canvas.toDataURL('image/png');
+      // const a = document.createElement('a');
+      // a.href = image;
+      // a.download = fileName;
+      // document.body.appendChild(a);
+      // a.click();
+      // document.body.removeChild(a);
+      overlay.style.display = "none";
+    }
+    event.stopPropagation();
+  }
+
+    function capitalizeFirstLetter(str) {
+      var words = str.split(' ');
+      for (var i = 0; i < words.length; i++) {
+        var word = words[i];
+        words[i] = word.charAt(0).toUpperCase() + word.slice(1);
+      }
+      return words.join(' ');
+    }
+
+
+    function loadData(data, diagrams) {
+      $.each(data, function (index, map) {
+        buildMap(map.map, diagrams[index].map, index + 1);
+      });
+      $('.dropdown-trigger').dropdown();
+    }
+
+
+    loadData(maps, diagrams);
+
+
+    var miCheckbox = document.getElementById("descripcion");
+
     if (miCheckbox) {
       miCheckbox.addEventListener("change", function () {
-			var misDivs = document.getElementsByTagName("blockquote");
-		  if (miCheckbox.checked) {
-			// Si el checkbox está seleccionado, mostramos los divs
-	
-			for (var i = 0; i < misDivs.length; i++) {
-			  misDivs[i].style.display = "block";
-			};
-		  } else {
-			// Si el checkbox no está seleccionado, ocultamos los divs
-			for (var i = 0; i < misDivs.length; i++) {
-			  misDivs[i].style.display = "none";
-			};
-		  }
-		});
-	}
-	
-	
-	// Inicialización de los Collapsibles
+        var misDivs = document.getElementsByTagName("blockquote");
+        if (miCheckbox.checked) {
+          // Si el checkbox está seleccionado, mostramos los divs
+
+          for (var i = 0; i < misDivs.length; i++) {
+            misDivs[i].style.display = "block";
+          };
+        } else {
+          // Si el checkbox no está seleccionado, ocultamos los divs
+          for (var i = 0; i < misDivs.length; i++) {
+            misDivs[i].style.display = "none";
+          };
+        }
+      });
+    }
+
+
+    // Inicialización de los Collapsibles
     document.addEventListener('DOMContentLoaded', function () {
-		var elems = document.querySelectorAll('.collapsible');
-		var instances = M.Collapsible.init(elems);
-	});
-	
-	
+      var elems = document.querySelectorAll('.collapsible');
+      var instances = M.Collapsible.init(elems);
+      var elems = document.querySelectorAll('.sidenav');
+      var instances = M.Sidenav.init(elems);
+      var sidenavClose = document.querySelector('.sidenav-close');
+      sidenavClose.addEventListener('click', function() {
+        var sidenavInstance = M.Sidenav.getInstance(elems[0]);
+       sidenavInstance.close();
+      });
+    });
+
     $(document).ready(function () {
-      $(".collapsible-header").click(function () {
+      $("body").on("click", ".collapsible-header", function () {
         $(".more", this).toggle()
-		  $(".less", this).toggle()
-	  });
+        $(".less", this).toggle()
+      });
       var id = "{{ id | safe }}";
       if (id !== ""){
         id = "/" + id;
       }
-      // Llamada al servicio REST para obtener los nombres de los maps
+     // var mapsList = document.getElementById('maps-list');
+      // if (window.innerWidth >= 1000) {
+      //   mapsList.classList.add('col', 's2');
+      // } else {
+      //   mapsList.classList.remove('col', 's2');
+      // }
       $.get("/maps" + id, function (data) {
         // Generación de la lista de maps
         var mapsList = $("#maps-list");
+        var idList = "{{ idList | safe }}"
         const rutaActual = window.location.pathname;
         $.each(data.maps, function (index, map) {
+          var div = $("<div>");
           var li;
-          if(map.id ==="{{ idMap | safe }}") {
-            li = $("<li>", { class: "collection-item waves-effect active" });
+          if(map.id === idList) {
+            li = $("<li>", { class: "collection-item waves-effect col s12 z-depth-5 active row", id: map.id  });
           } else{
-            li = $("<li>", { class: "collection-item waves-effect" });
+            li = $("<li>", { class: "collection-item waves-effect col s12", id: map.id  });
           }
-          var a = $("<a>", { href: "#", text: map.name });
-          li.append(a);
-          a.click(function () {
-            window.location.assign(window.location.origin + "/diagram/" + map.id);
+          var icon = 'label';
+          if(map.icon){
+            icon = node.icon;
+          }
+          var i;
+          if(map.id === idList) {
+            i = $("<i>", { class: "material-icons  left more s2", text: icon }).css({ "margin": "0 0 0 0"});
+          }else{
+            i = $("<i>", { class: "material-icons  left more s2", text: icon }).css({ "margin": "0 10px 0 10px"});
+          }
+          var a = $("<a>", { class: "col s12"}).css("margin", "0 0px 0 0");
+          var a2 = $("<a>", { class: "col s12"}).css("margin", "0 0px 0 0");
+          var span = $("<span>", { text: map.name });
+          var maxWidth = $('.s1').width() * 1.9;
+          if (window.innerWidth >= 1000) {
+            maxWidth = $('.s1').width() * 1.9;
+          } else {
+            maxWidth = 1000;
+          }
+          if(map.id === idList) {
+            if("{{ shared | safe }}" === "0") {
+              if (window.innerWidth >= 1000) {
+            maxWidth = $('.s1').width() * 1.60;
+              } else {
+                maxWidth = 100;
+              }
+            }
+            var iDelete = $("<i>", { id: "delete_button", class: "material-icons  right  more s2", text: "delete_forever"}).css("margin", "0 0 0 0");
+            var iEdit = $("<i>", { id: "edit_button", class: "material-icons  right  more s2", text: "edit"}).css("margin", "0 0 0 0");
+            var iCancel = $("<i>", { id: "cancel_button", class: "material-icons  right  more s2", text: "cancel"}).css({"margin": "0 0 0 0", "display":"none"});
+            var iOk = $("<i>", { id: "ok_button", class: "material-icons  right  more s2", text: "check"}).css({"margin": "0 0 0 0", "display":"none"});
+            var iOkEdit = $("<i>", { id: "ok_edit_button", class: "material-icons  right  more s2", text: "check"}).css({"margin": "0 0 0 0", "display":"none"});
+            var span2 = $("<input>", { id: "name_input", class: "col s7", type:"text", value: map.name}).css("margin", "0 0 0 0");
+            span2.css({
+              "vertical-align": "middle",
+              "display": "none",
+              "white-space": "nowrap",
+              "overflow": "hidden",
+              "text-overflow": "ellipsis",
+              "margin": "0 0 0 0",
+              "vertical-align": "middle"
+            });
+            span = $("<span>", { id: "name_span", text: map.name });
+          }
+          //li.attr("style", "color: red;align: middle");
+
+          span.css({
+            "display": "inline-block",
+            "white-space": "nowrap",
+            "overflow": "hidden",
+            "text-overflow": "ellipsis",
+            "margin": "0 0 0 0",
+            "vertical-align": "middle"
           });
+          a.append(i)
+          a.append(span);
+          if(map.id === idList && "{{ shared | safe }}" === "0") {
+            a.append(span2);
+            a.append(iDelete)
+            a.append(iEdit)
+            a.append(iOk)
+            a.append(iOkEdit)
+            a.append(iCancel)
+          }
+          a.css({
+            "text-overflow": "ellipsis",
+            "white-space": "nowrap"
+          });
+          li.append(a);
+          if(map.id !== idList || "{{ shared | safe }}" !== "0") {
+            i.click(function () {
+              window.location.assign(window.location.origin + "/diagram/" + map.id);
+            });
+            span.click(function () {
+              window.location.assign(window.location.origin + "/diagram/" + map.id);
+            });
+          }else{
+            iDelete.click(function () {
+              $('#ok_button').show();
+              $('#cancel_button').show();
+              $('#delete_button').hide();
+              $('#edit_button').hide();
+              var width = $('.s1').width() * 1.5;
+              i.css("max-width", width +"px");
+              i.css("min-width", "0px");
+            });
+            iEdit.click(function () {
+              $('#ok_edit_button').show();
+              $('#cancel_button').show();
+              $('#delete_button').hide();
+              $('#edit_button').hide();
+              $('#name_span').hide();
+              span2.show();
+              var width = $('.s1').width() * 1.5;
+              i.css("max-width", width +"px");
+              i.css("min-width", "0px");
+            });
+            iCancel.click(function () {
+              $('#ok_button').hide();
+              $('#ok_edit_button').hide();
+              $('#cancel_button').hide();
+              $('#name_span').show();
+              span2.hide();
+              $('#delete_button').show();
+              $('#edit_button').show();
+              var width = $('.s1').width() * 1.7;
+              i.css("max-width", width +"px");
+              i.css("min-width", "0px");
+            });
+            iOk.click(function () {
+              var idList = "{{ idList | safe }}";
+              window.location.assign(window.location.origin + "/delete/" + idList);
+            });
+            iOkEdit.click(function () {
+              var idList = "{{ idList | safe }}";
+              const message = {
+                "id": "{{ idList | safe }}",
+                "text": span2[0].value
+              };
+              fetch(window.location.origin + "/rename", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(message)
+              })
+              .then(response => {
+                  response.json().then(data => {
+                    document.getElementById("title").textContent = span2[0].value;
+                    span[0].textContent = span2[0].value;
+                    $('#ok_button').hide();
+                    $('#ok_edit_button').hide();
+                    $('#cancel_button').hide();
+                    $('#name_span').show();
+                    span2.hide();
+                    $('#delete_button').show();
+                    $('#edit_button').show();
+                    var width = $('.s1').width() * 1.7;
+                    i.css("max-width", width +"px");
+                    i.css("min-width", "0px");
+                  })
+              })
+              .catch(error => console.error(error => {
+                  $('#ok_button').hide();
+                  $('#ok_edit_button').hide();
+                  $('#cancel_button').hide();
+                  $('#name_span').show();
+                  span2.hide();
+                  $('#delete_button').show();
+                  $('#edit_button').show();
+                  var width = $('.s1').width() * 1.7;
+                  i.css("max-width", width +"px");
+                  i.css("min-width", "0px");
+              }));
+            });
+          }
           mapsList.append(li);
         });
-	});
+        var sidenavFooter = document.getElementById('sidenav-footer');
+        sidenavFooter.classList.remove('hide');
+        var sidenav = document.getElementById('maps-list');
+        sidenav.insertAdjacentElement('beforeend', sidenavFooter);
+      });
       $('.sidenav').sidenav();
     });
 
@@ -299,29 +1552,564 @@
       var instances = M.Sidenav.init(elems);
     });
 
-    const submitButton = document.getElementById("action");
-		const spinner = document.getElementById("spinner");
-		const myForm = document.getElementById("myForm");
-		const texto = document.getElementById("texto");
+    const submitButtonAdd = document.getElementById("add");
+    const buttonGloblaDiagram = document.getElementById("globlaDiagram");
+    const buttonDeleteDiagram = document.getElementById("deleteDiagram");
+    const buttonShareDiagram = document.getElementById("shareDiagram");
+    const buttonTextDiagram = document.getElementById("textDiagram");
+    
+    
+    const spinner = document.getElementById("spinner");
+    const myForm = document.getElementById("myForm");
+    const texto = document.getElementById("texto");
+    const input = document.getElementById("bottom-container");
+    var tipoLlamada = "";
+    var idLlamada = "";
+    var id = "{{ id | safe }}";
+    
+    if (input && "True"!="{{ user | safe }}") {
+      input.style.display = "none";
+    }
 
-		texto.addEventListener("paste", function (e) {
-			setTimeout(function () {
-				// Ajusta la altura del <textarea> para acomodar el contenido
-				texto.style.height = "auto";
-				texto.style.height = texto.scrollHeight + "px";
-			}, 0);
-		});
+    var height = texto.style.height;
 
-		submitButton.addEventListener('click', function () {
-			if (texto.value.length < 14000) {
-				spinner.style.display = 'block';
-				submitButton.disabled = true;
-				myForm.submit();
-			}
-		});
 
+    texto.addEventListener("paste", function (e) {
+      setTimeout(function () {
+        // Ajusta la altura del <textarea> para acomodar el contenido
+        M.textareaAutoResize($('#texto'));
+        // texto.style.height = "auto";
+        // texto.style.height = texto.scrollHeight + "px";
+        // const screenHeight = window.innerHeight - 100;
+        // const textareaHeight = texto.getBoundingClientRect().height;
+        // if (textareaHeight > screenHeight) {
+        //   // Si la altura es mayor, ajusta la altura del <textarea> para que no sobrepase la pantalla
+        //   texto.style.height = screenHeight + "px";
+        // }
+      }, 0);
+    });
+
+    buttonGloblaDiagram.addEventListener('click', function () {
+      toggleOverlay("mainbody1", 0);
+    });
+
+    buttonTextDiagram.addEventListener('click', function () {
+      event.stopPropagation();
+          var link = document.createElement('a');
+          link.href = '/txtlist/{{ idList | safe }}';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+    });
+
+    if (!navigator.share && shareDeleteDiagram) {
+      shareDeleteDiagram.style.display = 'none';
+    }
+
+    buttonShareDiagram.addEventListener('click', function () {
+      shareList();
+    });
+
+    if (buttonDeleteDiagram && "True"!="{{ user | safe }}") {
+      buttonDeleteDiagram.style.display = 'none';
+    }
+
+    buttonDeleteDiagram.addEventListener("click", function() {
+      document.getElementById("message").innerHTML = "Va a eliminar este grupo<br>¿Desea continuar?";
+      var modal = document.getElementById("modalOKCancel");
+      var instance = M.Modal.init(modal, {
+        onCloseEnd: function() {
+          // Se llama cuando se cierra el modal
+          // Puedes agregar cualquier código que necesites aquí
+        }
+      });
+      instance.open();
+      var yesButton = document.getElementById("modal-yes-btn");
+      var noButton = document.querySelector(".modal-close");
+      yesButton.addEventListener("click", function() {
+        deleteMap("{{ idList | safe }}", "list");
+        instance.close();
+      });
+      noButton.addEventListener("click", function() {
+        instance.close();
+      });
+    });
+    var intervalId;
+        var eventSource = new EventSource('/notificaciones');
+          eventSource.addEventListener('notificacion', function(event) {
+          var data = JSON.parse(event.data);
+          if(data.time){
+            clearInterval(intervalId);
+            var progressBar = document.getElementById('progress-bar');
+            var width = 0;
+            var increment = 100 / (data.time * 1000 / 10); // Calcula el incremento en función de los segundos
+
+        intervalId = setInterval(function() {
+              width += increment;
+              progressBar.style.width = width + '%';
+
+              if (width >= 100) {
+                clearInterval(intervalId);
+              }
+            }, 10); // Actualiza la barra de progreso cada 10 milisegundos
+          }else if(data.parcial){
+            clearInterval(intervalId);
+            var progressBar = document.getElementById('progress-bar');
+            var width = 0;
+            var increment = 50; // Calcula el incremento en función de los segundos
+            if(data.parcial > 0){
+              (data.total * 2) / data.parcial * 100;
+            }
+        intervalId = setInterval(function() {
+              width += increment;
+              progressBar.style.width = width + '%';
+
+              if (width >= 100) {
+                clearInterval(intervalId);
+              }
+            }, 10); // Actualiza la barra de progreso cada 10 milisegundos
+          }else if(data.error){
+                if(data.error !== '0'){
+                  var errorMessage = data.error;
+                  document.getElementById("modal-error").innerHTML = errorMessage;
+                  var modal = document.getElementById("modal1");
+                  var instance = M.Modal.init(modal, {
+                    onCloseEnd: function() {
+                      // Se llama cuando se cierra el modal
+                      // Puedes agregar cualquier código que necesites aquí
+                    }
+                  });
+                  instance.open();
+              spinner.style.display = 'none';
+              submitButtonAdd.classList.remove("disabled");
+              texto.value = "";
+              M.textareaAutoResize($('#texto'));
+              texto.style.height = texto.scrollHeight + "px";
+              clearInterval(intervalId);
+                }
+          }else if(data.map){
+        if (tipoLlamada == "refresh"){
+          var index = maps.findIndex(function(element) {
+            return element.id === idLlamada;
+          });
+          if (index !== -1) {
+            maps[index] = data;
+            var diagrams = { ...maps};
+            rebuildMap(data.map, diagrams[index].map, idLlamada);
+            $('.dropdown-trigger').dropdown();
+            $('.collapsible').collapsible();
+            const elemento = document.getElementById("container" + data.id);
+            const posicion = elemento.getBoundingClientRect().top;
+            window.scrollTo({
+              top: posicion,
+              behavior: "smooth"
+            });
+          }
+        }else if (tipoLlamada == "add"){
+              maps.push(data);
+                var diagram = { ...data};
+                diagrams = { ...maps};
+                buildMap(data.map, diagrams[maps.length - 1], maps.length);
+                $('.dropdown-trigger').dropdown();
+              $('.collapsible').collapsible();
+                const elemento = document.getElementById("container" + data.map.id);
+              const posicion = elemento.getBoundingClientRect().top;
+              window.scrollTo({
+                top: posicion,
+                behavior: "smooth"
+              });
+                texto.value = "";
+        }
+              spinner.style.display = 'none';
+              submitButtonAdd.classList.remove("disabled");
+              M.textareaAutoResize($('#texto'));
+              clearInterval(intervalId);
+            }
+        });
+
+    submitButtonAdd.addEventListener('click', function () {
+      tipoLlamada = "add";
+      if (texto.value.length < 14000) {
+        spinner.style.display = 'block';
+        submitButtonAdd.classList.add("disabled");
+        const message = {
+          "id": "{{ idList | safe }}",
+          "text": texto.value,
+          "size": $('#size')[0].value
+        };
+        texto.value = "";
+        texto.style.height = height;
+        fetch(window.location.origin + "/add", {
+          method: 'POST',
+          headers: {
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(message)
+        })
+      }
+    });
+
+    $(document).ready(function() {
+      $('textarea#texto').characterCounter();
+      $('#texto').on('input', function() {
+        var length = $(this).val().length;
+        if (length > 14000) {
+          $('#add').addClass("disabled").prop("disabled", true);
+        } else {
+          $('#add').removeClass("disabled").prop("disabled", false);
+        }
+      });
+
+      // Obtén el interruptor
+      var toggleSwitch = $('#toggle');
+      var darkmode = "{{ darkmode | safe }}";
+      if(darkmode == "True"){
+        $('body').addClass('dark-mode');
+        $("#toggle").prop("checked", true);
+      }else{
+        $('body').removeClass('dark-mode')
+      }
+
+
+      // Agrega un listener para el evento change
+      toggleSwitch.change(function() {
+        // Si el interruptor está activado (chequeado)
+        if (toggleSwitch.prop('checked')) {
+          // Cambia el tema a modo nocturno
+          $('body').addClass('dark-mode');
+          fetch(window.location.origin + "/darkmode/1", {
+                    method: 'POST'
+          })
+        } else {
+          // De lo contrario, cambia el tema a modo de luz
+          $('body').removeClass('dark-mode')
+          fetch(window.location.origin + "/darkmode/0", {
+                    method: 'POST'
+          });
+        }
+      });
+    });
+
+
+
+    function toggleAll(d) {
+      if (d.children) {
+        d.children.forEach(toggleAll);
+        toggle(d);
+      }
+    }
+    
+
+      // Initialize the display to show a few nodes.
+      // root.children.forEach(toggleAll);
+      // toggle(root.children[1]);
+      // toggle(root.children[1].children[2]);
+      // toggle(root.children[9]);
+      // toggle(root.children[9].children[0]);
+    
+    //update(root);
+    
+    function addKeywordToChildren(obj) {
+      if (obj.children) {
+        obj.children.forEach(function(child) {
+          child["type"] = "normal";
+          addKeywordToChildren(child);
+        });
+      }
+      if(!obj.children){
+        // obj.children = [];
+      }
+      if (obj.keywords) {
+        var children = []
+        for (i in obj.keywords) {
+            keyword = {"name" : obj.keywords[i], "type": "keyword"};
+            children.push(keyword);
+        }
+        for (i in obj.children) {
+            children.push(obj.children[i]);
+        }
+        obj.children = children;
+      }
+    }
+
+    function getMaxLevels(obj) {
+      let maxLevels = 0;
+      if (obj.children) {
+        obj.children.forEach(function(child) {
+          const childLevels = getMaxLevels(child);
+          if (childLevels > maxLevels) {
+            maxLevels = childLevels;
+          }
+        });
+        maxLevels += 1;
+      }
+      return maxLevels;
+    }
+    
+    function loadDiagram(name, source, tree, diagonal, vis) {
+      // var w = $("#" + name).parent().width();
+      // var h = $("#" + name).parent().height() ;
+
+
+      var h  = window.innerHeight + 150;
+      var w = window.innerWidth;
+      if (w < 1000){
+        w = 1000;
+      }
+      if (h < 800){
+        h = 800;
+      }
+      var maxLevels = getMaxLevels(source); 
+
+      var m = [100, 120, 80, 0],
+        w = w - m[1] - m[3],
+        h = h - m[0] - m[2],
+        i = 0,
+        root;
+    
+      if(!tree){
+        tree = d3.layout.tree()
+          .size([h, w]);
+
+
+          
+          var diagonal = d3.svg.diagonal()
+              .projection(function(d) { return [d.y, d.x]; });
+      
+
+        var vis = d3.select("#" + name).append("svg:svg")
+        .attr("height", h + m[0] + m[2])
+        .attr("width", w + m[1] + m[3])
+        .attr("class", "diagram-svg")
+        .attr("transform", "translate(40,0)");
+      }
+          
+      root = source;
+      root.x0 = h / 2;
+      root.y0 = 0;
+
+      depth = (w - 40) /  maxLevels;
+
+      var duration = d3.event && d3.event.altKey ? 5000 : 500;
+    
+      // Compute the new tree layout.
+      var nodes = tree.nodes(root).reverse();
+    
+      // Normalize for fixed-depth.
+      nodes.forEach(function(d) { return d.type !== 'keyword' ? d.y = d.depth * depth : d.y = (d.depth * depth - (depth / 2));  });
+    
+      // Update the nodes…
+      var node = vis.selectAll("g.node")
+          .data(nodes, function(d) { return d.id || (d.id = ++i); });
+    
+    
+      // Enter any new nodes at the parent's previous position.
+      var nodeEnter = node.enter().append("svg:g")
+          .attr("class", "node")
+          .attr("transform", function(d) { return "translate(" + source.y0 + 500 + "," + source.x0 + 200 + ")"; })
+          .on("click", function(d) { toggle(d); loadDiagram(name, source, tree, diagonal, vis); });
+
+    
+      // Agregar iconos de Materialize
+      nodeEnter.filter(function(d) { return d.icon; }).append("svg:foreignObject")
+        .attr("class", "node-icon")
+        .attr("x", "-35px")
+        .attr("y", "-15px")
+        .attr("width", "24px")
+        .attr("height", "24px")
+        .html(function(d) { return '<i class="material-icons">' + d.icon + '</i>'; });
+    
+      nodeEnter.append("svg:circle")
+          .attr("r", 1e-6)
+          .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    
+      var color = 'blue';
+      if(darkmode == "True"){
+        color = 'green';
+      }
+      nodeEnter.append('a')
+          .attr('xlink:href', function(d) {
+            return d.url;
+          })
+          .append("svg:text")
+          .attr("x", function(d) { return d.type !== 'keyword' ? 15 : 15; })
+          .attr("y", function(d) { return d.type !== 'keyword' ? 0 : 0; })
+          .attr("dy", ".35em")
+          .attr('alignment-baseline', d => d)
+          .attr("text-anchor", function(d) { return d.children || d._children ? "start" : "start"; })
+          .each(function (d) {
+                var arr = d.name.split(" ");
+                var children = false;
+                if(d.children){
+                  children = d.children.some(f => f.type === "keyword");
+                }
+                if(d.type !== 'keyword' &&  (!d._children || !children) ){
+                  for (i = 0; i < arr.length; i++) {
+                    if(arr[i + 1]){
+                      arr[i + 1] + " " +arr[i + 1]
+                    }
+                    n = i;
+                    var name = arr[i];
+                    while (arr[i + 1]) {
+                      var name2 = name + ' ' + arr[i + 1];
+                      if(d.type === 'keyword' || name2.length < 15){
+                        name = name2;
+                        i++;
+                      }else{
+                        break;
+                      }
+                    }
+                    d3.select(this).append("tspan")
+                        .text(name)
+                        .attr("dy", i ? "1.2em" : 0)
+                        .attr("x", d.type !== 'keyword' ? 10 : 15)
+                        .attr("class", "tspan" + i);
+                  }
+                }else{
+                  d3.select(this).text(d.name).attr("dy", ".35em");
+                }
+
+            })
+          .style('fill', function(d) {
+            return d.type === 'keyword' ? 'red' : color;
+          })
+          .style('font-weight', function(d) {
+            return 'bold';
+          })
+          .style("fill-opacity", 1e-6);
+    
+      nodeEnter.append("svg:title")
+        .text(function(d) {
+          return d.description;
+        });
+    
+    
+    
+      // Append keywords as list elements
+      // nodeEnter.append('foreignObject')
+      // 	.attr('class', 'foreignobj')
+      // 	.attr('x', function(d) { return d.children || d._children ? -10 : 10; })
+      // 	.attr('y', function(d) { return d.children || d._children ? -35 : -15; })
+      // 	.attr('width', 100)
+      // 	.attr('height', 50)
+      // 	.append('xhtml:body')
+      // 	.attr('class', 'foreignobj-body')
+      // 	.html(function(d) {
+      // 		if (d.keywords) {
+      // 			var listItems = d.keywords.map(function(keyword) {
+      // 				return '<li>' + keyword + '</li>';
+      // 			});
+      // 			return '<ul>' + listItems.join('') + '</ul>';
+      // 		} else {
+      // 			return '';
+      // 		}
+      // 	});
+    
+      // Transition nodes to their new position.
+      var nodeUpdate = node.transition()
+          .duration(duration)
+          .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+    
+      nodeUpdate.select("circle")
+          .attr("r", 6)
+          .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    
+      nodeUpdate.select("text")
+          .style("fill-opacity", 1).each(function (d) {
+                d3.select(this).text("");
+                var arr = d.name.split(" ");
+                var children = false;
+                if(d.children){
+                  children = d.children.some(f => f.type === "keyword");
+                }
+                if(d.type !== 'keyword' &&  (!d._children) ){
+                  for (i = 0; i < arr.length; i++) {
+                    if(arr[i + 1]){
+                      arr[i + 1] + " " +arr[i + 1]
+                    }
+                    n = i;
+                    var name = arr[i];
+                    while (arr[i + 1]) {
+                      var name2 = name + ' ' + arr[i + 1];
+                      if(d.type === 'keyword' || name2.length < 15){
+                        name = name2;
+                        i++;
+                      }else{
+                        break;
+                      }
+                    }
+                    d3.select(this).append("tspan")
+                        .text(name)
+                        .attr("dy", i ? "1.2em" : 0)
+                        .attr("x", d.type !== 'keyword' ? 10 : 15)
+                        .attr("class", "tspan" + i);
+                  }
+                }else{
+                  d3.select(this).text(d.name).attr("dy", ".35em");
+                }
+
+            });
+    
+      // Transition exiting nodes to the parent's new position.
+      var nodeExit = node.exit().transition()
+          .duration(duration)
+          .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+          .remove();
+    
+      nodeExit.select("circle")
+          .attr("r", 1e-6);
+    
+      nodeExit.select("text")
+          .style("fill-opacity", 1e-6);
+    
+      // Update the links…
+      var link = vis.selectAll("path.link")
+          .data(tree.links(nodes), function(d) { return d.target.id; });
+    
+      // Enter any new links at the parent's previous position.
+      link.enter().insert("svg:path", "g")
+          .attr("class", "link")
+          .attr("d", function(d) {
+            var o = {x: source.x0, y: source.y0};
+            return diagonal({source: o, target: o});
+          })
+        .transition()
+          .duration(duration)
+          .attr("d", diagonal);
+    
+      // Transition links to their new position.
+      link.transition()
+          .duration(duration)
+          .attr("d", diagonal);
+    
+      // Transition exiting nodes to the parent's new position.
+      link.exit().transition()
+          .duration(duration)
+          .attr("d", function(d) {
+            var o = {x: source.x, y: source.y};
+            return diagonal({source: o, target: o});
+          })
+          .remove();
+    
+      // Stash the old positions for transition.
+      nodes.forEach(function(d) {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+    }
+    
+    // Toggle children.
+    function toggle(d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+    }
   </script>
-
 </body>
 
 </html>

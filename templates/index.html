@@ -2,123 +2,1191 @@
 <html>
 
 <head>
-        <title>Generador de texto</title>
-        <!-- Incluir Materialize CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Neural Maps AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generador de mapas mentales en forma de estructura de contenido web y diagramas utilizando inteligencia artificial. Crea diagramas interactivos y organiza tus ideas de manera visual.">
+  <meta name="keywords" content="generador de mapas mentales, estructura de contenido web, diagramas, inteligencia artificial, diagramas interactivos, organizar ideas">
+  <link rel="shortcut icon" type="image/svg+xml" href="../svg" sizes="24x24">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
-	.spinner-container {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
 
-		/* Establecer la anchura máxima del contenido del sidebar */
-		#sidebar-content {
-			max-width: 200px;
+    .sidenav li>a>i, .sidenav li>a>[class^="mdi-"], .sidenav li>a li>a>[class*="mdi-"], .sidenav li>a>i.material-icons    {
+      margin: 0 0px 0 0;
+      font-size: 1.2rem;
+    }   
+
+    .sidenav li>a {
+        color: rgba(0,0,0,0.87);
+        display: block;
+        font-size:0.75rem;
+        font-weight: 500;
+        height: 48px;
+        line-height: 48px;
+        padding: 0 0px;
+    }
+ 
+    .spinner-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+
+    .collapsible {
+        /* border-top: 1px solid #ddd; */
+        /* border-right: 1px solid #ddd; */
+        /* border-left: 1px solid #ddd; */
+        margin: px solid #ddd;
+    }
+
+    .dark-mode .collapsible {
+      margin: px solid #333333;
+    }
+
+    .sidenav li>a.btn, .sidenav li>a.btn-large, .sidenav li>a.btn-small, .sidenav li>a.btn-large, .sidenav li>a.btn-flat, .sidenav li>a.btn-floating {
+        margin: 0px 0px; 
+    }
+
+    .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .flow-text {
+        font-size: 1.2rem;
+    }
+
+    .sidenav::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .sidenav::-webkit-scrollbar-track {
+      background-color: #F5F5F5;
+    }
+
+    .sidenav::-webkit-scrollbar-thumb {
+      background-color: #757575;
+      border-radius: 10px;
+    }
+
+    .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+    /* Estilos para redondear el extremo de la barra que desliza */
+    .sidenav::-webkit-scrollbar-thumb:vertical:last-of-type {
+      border-bottom-right-radius: 10px;
+    }
+
+    .sidenav::-webkit-scrollbar-thumb:vertical:first-of-type {
+      border-top-right-radius: 10px;
+    }
+    
+    .input-field>label{
+      z-index: 99;
+    }
+
+
+    .dark-mode {
+      background-color: #333333;
+      color: #ffffff;
+    }
+
+    ::-webkit-scrollbar-button {
+      display: none;
+    }
+
+    /* Estilo de la barra de desplazamiento */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+      background-color: #f5f5f5;
+      border-radius: 3px;
+    }
+
+    /* Estilo del deslizador */
+    ::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 3px;
+    }
+
+    /* Establecer el estilo de recorte de texto */
+    #sidebar-content a {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 999;
+    }
+
+    /* Establecer una posición fija para el contenedor */
+    #bottom-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0;
+      width: 100%;
+      background-color: transparent;
+      z-index: 999;
+    }
+
+    #texto {
+      position: relative;
+      background-color: #fff;
+      color: #000;
+      /* color negro */
+    }
+
+    .dark-mode #texto {
+      background-color: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      /* color blanco */
+    }
+    
+    #caption {
+      color: #fff;
+      /* color blanco */
+    }
+
+        titlePage {
+      display: inline-block; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      vertical-align: middle;
+    }
+
+
+    /* Estilos para el modo oscuro de la sidenav-fixed */
+    .dark-mode .sidenav-fixed {
+      background-color: #212121;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a {
+      color: #FFFFFF;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a.btn, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-small, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-flat, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-floating {
+      color: #FFFFFF;
+      background-color: #4CAF50;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a.btn:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-small:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-large:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-flat:hover, 
+    .dark-mode .sidenav-fixed .sidenav li>a.btn-floating:hover {
+      background-color: #388E3C;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li.active>a, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-small, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-large, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-flat, 
+    .dark-mode .sidenav-fixed .sidenav li.active>a.btn-floating {
+      background-color: #4CAF50;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav li>a>i, 
+    .dark-mode .sidenav-fixed .sidenav li>a>[class^="mdi-"], 
+    .dark-mode .sidenav-fixed .sidenav li>a li>a>[class*="mdi-"], 
+    .dark-mode .sidenav-fixed .sidenav li>a>i.material-icons {
+      color: #FFFFFF;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav::-webkit-scrollbar-thumb {
+      background-color: #FFFFFF;
+    }
+
+    .dark-mode .sidenav-fixed .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #CCCCCC;
+    }
+
+    .dark-mode .sidenav li>a>i, 
+    .dark-mode .sidenav li>a>[class^="mdi-"], 
+    .dark-mode .sidenav li>a li>a>[class*="mdi-"], 
+    .dark-mode .sidenav li>a>i.material-icons {
+      margin: 0 0px 0 0;
+      font-size: 1.2rem;
+      color: #fff; /* Cambiamos el color del texto e iconos a blanco */
+    }
+
+    .dark-mode .sidenav li>a {
+      color: #fff; /* Cambiamos el color del texto a blanco */
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      height: 48px;
+      line-height: 48px;
+      padding: 0 0px;
+    }
+
+    .dark-mode .sidenav li>a.btn, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-small, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-flat, 
+    .dark-mode .sidenav li>a.btn-floating {
+      margin: 0px 0px; 
+    }
+
+    .dark-mode .sidenav .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .dark-mode .sidenav .flow-text {
+      font-size: 1.2rem;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-track {
+      background-color: #F5F5F5;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb {
+      background-color: #757575;
+      border-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+    /* Estilos para redondear el extremo de la barra que desliza */
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:last-of-type {
+      border-bottom-right-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:first-of-type {
+      border-top-right-radius: 10px;
+    }.dark-mode .sidenav li>a>i, 
+    .dark-mode .sidenav li>a>[class^="mdi-"], 
+    .dark-mode .sidenav li>a li>a>[class*="mdi-"], 
+    .dark-mode .sidenav li>a>i.material-icons {
+      margin: 0 0px 0 0;
+      font-size: 1.2rem;
+      color: #fff; /* Cambiamos el color del texto e iconos a blanco */
+    }
+
+    .dark-mode .sidenav li>a {
+      color: #fff; /* Cambiamos el color del texto a blanco */
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      height: 48px;
+      line-height: 48px;
+      padding: 0 0px;
+    }
+
+    .dark-mode .sidenav li>a.btn, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-small, 
+    .dark-mode .sidenav li>a.btn-large, 
+    .dark-mode .sidenav li>a.btn-flat, 
+    .dark-mode .sidenav li>a.btn-floating {
+      margin: 0px 0px; 
+    }
+
+    .dark-mode .sidenav .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .dark-mode .sidenav .flow-text {
+      font-size: 1.2rem;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-track {
+      background-color: #F5F5F5;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb {
+      background-color: #757575;
+      border-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+    /* Estilos para redondear el extremo de la barra que desliza */
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:last-of-type {
+      border-bottom-right-radius: 10px;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:vertical:first-of-type {
+      border-top-right-radius: 10px;
+    }
+
+
+    body.dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #616161;
+    }
+
+
+    .dark-mode .spinner-container {
+      color: #fff;
+    }
+
+
+    .dark-mode .row > span {
+      max-width: 8.33333333%;
+    }
+
+    .dark-mode .flow-text {
+      font-size: 1.2rem;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-track {
+      background-color: #333333;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb {
+      background-color: #cfcfcf;
+    }
+
+    .dark-mode .sidenav::-webkit-scrollbar-thumb:hover {
+      background-color: #dcdcdc;
+    }
+
+    .dark-mode #sidebar-content a {
+      color: #fff;
+    }
+
+    .dark-mode #texto {
+      background-color: rgba(255, 255, 255, 0.35);
+      color: #000;
+    }
+
+    .dark-mode #caption {
+      color: #000;
+    }
+
+    .dark-mode .input-field>label{
+    }
+
+    .dark-mode .input-field {
+      color: #fff;
+    }
+
+    .dark-mode ::-webkit-scrollbar-button {
+      display: none;
+    }
+
+    .dark-mode ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+      background-color: #333333;
+      border-radius: 3px;
+    }
+
+    .dark-mode ::-webkit-scrollbar-thumb {
+      background-color: #cfcfcf;
+      border-radius: 3px;
+    }
+
+    .dark-mode .collapsible-header {
+      color: #fff;
+      background-color: #333333;
+    }
+
+    .dark-mode .collapsible-body {
+      background-color: #424242;
+      color: #fff;
+      border-top: 1px solid #616161;
+    }
+
+    .dark-mode .collection-item.active {
+      background-color: #424242;
+      color: #ffffff;
+    }
+    .dark-mode .collection-item.active .secondary-content i {
+      color: #ffffff;
+    }
+    .dark-mode .collection-item.active:hover {
+      background-color: #616161;
+    }
+    .dark-mode .collection-item.active:active {
+      background-color: #616161;
+    }
+		.node circle {
+      cursor: pointer;
+      fill: #fff;
+      stroke: steelblue;
+      stroke-width: 1.5px;
 		}
 
-		/* Establecer el estilo de recorte de texto */
-		#sidebar-content a {
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
+		.node text {
+		font-size: 12px;
 		}
+
+		path.link {
+		fill: none;
+		stroke: #ccc;
+		stroke-width: 2.0px;
+		}    
+    
+    .dark-mode path.link {
+		fill: none;
+		stroke: #7461ad;
+		stroke-width: 2.0px;
+		}   
+    
+    .diagram-svg {
+
+      display: block;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 1); /* agregar transparencia */
+      z-index: 9999; /* asegurarse de que esté por encima de todo */
+      display: none; /* ocultar el div por defecto */
+    }
+
+    .dark-mode .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 1); /* agregar transparencia */
+      z-index: 9999; /* asegurarse de que esté por encima de todo */
+      display: none; /* ocultar el div por defecto */
+    }
+
+    .container {
+        width: 100%;
+    }
+
+    @media only screen and (max-width: 970px) {
+      .collapsible-body {
+          padding: 0.4rem;
+      }
+
+
+      h1 {
+          font-size: 2.2rem;
+          line-height: 110%;
+          margin: 2.8rem 0 1.68rem 0
+      }
+
+      h2 {
+          font-size: 2.06rem;
+          line-height: 110%;
+          margin: 2.3733333333rem 0 1.424rem 0
+      }
+
+      h3 {
+          font-size: 1.7rem;
+          line-height: 110%;
+          margin: 1.9466666667rem 0 1.168rem 0
+      }
+
+      h4 {
+          font-size: 1.5rem;
+          line-height: 110%;
+          margin: 1.52rem 0 .912rem 0
+      }
+
+      h5 {
+          font-size: 1.3rem;
+          line-height: 110%;
+          margin: 1.0933333333rem 0 .656rem 0
+      }
+
+      h6 {
+          font-size: 1.1rem;
+          line-height: 110%;
+          margin: .7666666667rem 0 .46rem 0
+      }
+
+      .flow-text {
+          font-size: 0.85rem;
+      }
+
+      .chip {
+          font-size: 10px;
+      }
+    }
+
+    .expandable-nav {
+      height: auto;
+      min-height: 64px; /* Establece una altura mínima para evitar que se colapse completamente */
+    }
+
+    nav .tooltipped {
+        float: right;
+        position: relative;
+        z-index: 1;
+        height: 56px;
+        margin: 0 18px;
+    }
+    
   </style>
 </head>
 
-<body>
-        <nav>
-            <div class="nav-wrapper teal">
-                <a href="#" class="brand-logo center">Generador de Mapas de Contenido</a>
-			<a href="#" data-target="maps-list" class="left sidenav-trigger show-on-large"><i
-					class="material-icons">menu</i></a>
-            </div>
-        </nav>
-        <div class="container">
-            <form id="myForm"  method="POST" action="/generar">
-                <div class="input-field">
-                    <label for="texto">Ingrese su texto:</label>
-                    <textarea name="texto" id="texto" class="materialize-textarea" maxlength="15000"></textarea>
-                </div>
-                <button class="btn waves-effect waves-light" type="submit" id="action" name="action">Generar
-				<i class="material-icons right0">send</i>
-                </button>
-            </form>
+<body class="flow-text">
+<div class="navbar-fixed">
+<nav class="navbar-fixed">
+  <div class="nav-wrapper teal expandable-nav">
+    <span class="brand-logo center titlePage hide-on-small-only">
+      <strong>
+        <i class="large material-icons" style="font-size: 4rem">grain</i>
+        <strong style="font-weight: 1000;">Neural Maps <span style="color: red;">AI</span></strong>
+      </strong>
+    </span>
+    <span class="center  hide-on-med-and-up">
+      <strong  style="font-weight: 1000;">
+        <span id="title" >Neural Maps <span style="color: red;">AI</span></span>
+      </strong>
+    </span>
+    <a href="#" data-target="maps-list" id="menu_button" class="left sidenav-trigger show-on-large">
+      <i class="material-icons">menu</i>
+    </a>
+    <a href="#"  class="right tooltipped new badge">
+      <i class="dropdown-trigger material-icons" data-target="dropdown">more_vert</i>
+    </a>
+    <div class="right-align col s1">
+      <ul class="dropdown-content" id="dropdown" tabindex="0" >
+         <li tabindex="0" id="shareDiagram"><a><i class="material-icons">share</i>Compartir Mapa</a></li>
+         <li tabindex="0" id="globlaDiagram"><a><i class="material-icons" >account_tree</i>Ver Mapa</a></li>
+         <li tabindex="0"><a><i class="material-icons">description</i>Descargar Texto</a></li>
+         <li tabindex="0" id="deleteDiagram"><a><i class="material-icons">delete</i>Eliminar</a></li>
+         <!-- <li tabindex="0"><a><i class="material-icons">refresh</i>Regenerar Mapa</a></li> -->
+      </ul>           
+   </div>
+  </div>
+  
+</nav>
+</div>
+<div class=" row ">
+  <div class="brand-logo center title Page col l3  hide-on-small-only  hide-on-med-only">
+
+    </div>
+  <div class="brand-logo center title Page col s12 m12 l9">
+
+    <h1 >
+      <span id="title" >{{ name | safe }}</span>
+    </h1>
+  </div>
+</div>
+  <div class="row">
+    <ul id="maps-list" class="sidenav sidenav-fixed left-align">
+      <li class="sidenav-header sidenav-fixed">
+        <a href="#" data-target="maps-list" class="sidenav-close right"><i class="material-icons" style="color: #fff;;margin: 0 0 0 0;background-color: red;">close</i></a>
+      </li>
+      <li class="sidenav-header sidenav-fixed">
+        <a href="../../" class="btn btn-block"></a>
+      </li>
+  </div>
+  <div id="sidenav-footer" class="sidenav-footer hide">
+    <li class="collection-item waves-effect col s12 divider"></li>
+    <li class="collection-item waves-effect col s12" >
+      <div class="container">
+        <div class="row">
+          <div class="col s12">
+            Ajustes
+          </div>
+          <div class="col s12 switch">
+            <label>
+              Modo Noche
+              <input id="toggle" type="checkbox">
+              <span class="lever"></span>
+            </label>
+          </div>
+          <div class="col s12 switch">
+            <label>
+              &nbsp;
+            </label>
+          </div>
         </div>
-        <!-- Incluir Materialize JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-		<div id="spinner" class="spinner-container" style="display:none;">
-			<div class="preloader-wrapper big active">
-				<div class="spinner-layer spinner-blue-only">
-					<div class="circle-clipper left">
-						<div class="circle"></div>
-					</div>
-					<div class="gap-patch">
-						<div class="circle"></div>
-					</div>
-					<div class="circle-clipper right">
-						<div class="circle"></div>
-					</div>
-				</div>
-			</div>
+      </div>
+    </li>
+
+  </div>
+  <div class="row">
+    <div class="col s1">
+    </div>
+    <div class="col s11">
+      <div class="container">
+        <div id="tree"></div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s1">
+    </div>
+    <div class="input-field col s11">
+      <div class="container">
+      </div>
+    </div>
+  </div>
+  <div id="spinner" class="spinner-container" style="display:none;">
+    <div class="valign-wrapper">
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-blue-only">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div>
+        <div class="gap-patch">
+          <div class="circle"></div>
+        </div>
+        <div class="circle-clipper right">
+          <div class="circle"></div>
+        </div>
+      </div>
+        <i class="large  material-icons pulse" style="font-size: 4.1rem">grain</i>
+      </div>
+    </div>
+    <div class="progress">
+      <div class="determinate" id="progress-bar" style="width: 0%"></div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <div class="row">
+    <div class="col m0 l4 hide-on-small-only" id="spaceInputArea">
+    </div>
+    <div class="col s12 m11 l7 " id="inputArea">
+		<div class="container">
+        <div class="row input-field  z-depth-2">
+          <div class="input-field col s12">
+            <label for="texto" >Ingrese su texto:</label>
+            <textarea name="texto" id="texto" class="materialize-textarea" maxlength="14000" data-length="14000"></textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s12   ">
+            <input type="range" id="size" min="40" max="100" value="100" style="display:none"/>
+            <a href="#" class="btn s1 waves-effect waves-light align-rigth right" id="generate" name="generate"><i
+                class="material-icons right" style="color: #fff;">send</i>Generar</a>
+          </div>
+          </div>
+        </div>
+
+
 		</div>
-	<ul id="maps-list" class="sidenav">
-	</ul>
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-		<script>
-			const submitButton  = document.getElementById("action");
-			const spinner = document.getElementById("spinner");
-			const myForm = document.getElementById("myForm");
-			const texto = document.getElementById("texto");
-			
-		texto.addEventListener("paste", function (e) {
-			setTimeout(function () {
-				  // Ajusta la altura del <textarea> para acomodar el contenido
-				  texto.style.height = "auto";
-				  texto.style.height = texto.scrollHeight + "px";
-				}, 0);
-			  });
+	</div>
+  </div>
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <i class="material-icons red-text text-darken-4">error</i>
+      <h4>Problema en Generación</h4>
+      <p id="modal-error"></p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">OK</a>
+    </div>
+  </div>
+  <script>
+    // Datos del árbol en formato JSON
 
-		submitButton.addEventListener('click', function () {
-			if (texto.value.length < 14000) {
-					spinner.style.display = 'block';
-					submitButton.disabled = true;
-					myForm.submit();
-				}
-			});
 
-		$(document).ready(function () {
-			// Llamada al servicio REST para obtener los nombres de los maps
-			$.get("/maps", function (data) {
-				// Generación de la lista de maps
-				var mapsList = $("#maps-list");
-				$.each(data.maps, function (index, map) {
-					var li = $("<li>", { class: "waves-effect" });
-					var a = $("<a>", { href: "#", text: map.name });
-					li.append(a);
-					li.click(function () {
-						window.location.href = "diagram/" + map.id;
-						// Llamada al servicio REST para obtener el contenido del map seleccionado
-						// $.get("http://localhost:5000/map/" + map, function(data) {
-						// 	// Mostrar el contenido del map en un diálogo modal
-						// 	$("#map-content").text(data);
-						// 	$("#map-modal").modal("show");
-						// });
-					});
-					mapsList.append(li);
-				});
-			});
-			$('.sidenav').sidenav();
-		});
+    var data = {};
 
-		document.addEventListener("DOMContentLoaded", function () {
-			var elems = document.querySelectorAll(".sidenav");
-			var instances = M.Sidenav.init(elems);
-		});
+    function buildTree(node, parent, level) {
+      var ul = document.createElement("ul");
+      parent.appendChild(ul);
+      var li = document.createElement("li");
+      li.textContent = '';
+      if (level === 3) {
+        li.classList.add("active");
+      }
+      ul.classList.add("collapsible");
+      var header = document.createElement("div");
+      header.textContent = '';
+      header.classList.add("collapsible-header");
+      header.classList.add("row");
+      var size = 50 - (4 * level);
+      if (level === 3) {
+        header.innerHTML = header.innerHTML + "<i class='material-icons  s1 left more'  style='font-size: " + size + "px;display: none;'>expand_more</i>";
+        header.innerHTML = header.innerHTML + "<i class='material-icons  s1 left less' style='font-size: " + size + "px'>expand_less</i>";
+      } else {
+        header.innerHTML = header.innerHTML + "<i class='material-icons  s1 left more'  style='font-size: " + size + "px'>expand_more</i>";
+        header.innerHTML = header.innerHTML + "<i class='material-icons  s1 left less' style='font-size: " + size + "px;display: none;'>expand_less</i>";
+      }
+      header.innerHTML = "<i class='material-icons ' class='s2'  style='font-size: " + size + "px'>" + node.icon + "</i>" + header.innerHTML;
+      header.innerHTML = header.innerHTML + "<h" + level + "><strong><span class='s9' style='font-weight: 400;'>" + header.name + "</span></strong></h" + level + ">";
+      li.appendChild(header);
+      if (!node.icon || (node.icon && node.icon === '')) {
+        node.icon = 'remove';
+      }
+      var body = document.createElement("div");
+      body.textContent = '';
+      body.classList.add("collapsible-body");
+      if (node.description) {
+        var blockquote = document.createElement("blockquote");
+        blockquote.textContent = '';
+        blockquote.innerHTML = node.description;
+        blockquote.innerHTML = blockquote.innerHTML.replace("<blockquote  class='miDiv'>", "<blockquote style='margin: 0px;'>");
+        body.appendChild(blockquote);
 
-		</script>
+      }
+      if (node.keywords) {
+        var keyContainer = document.createElement("div");
+        keyContainer.textContent = '';
+        keyContainer.classList.add("chips");
+        keyContainer.classList.add("readonly");
+        node.keywords.forEach(function (keyword) {
+          var key = document.createElement("div");
+          key.textContent = '';
+          if (keyword.name) {
+            key.innerHTML = node.name;
+            key.innerHTML = "<i class='material-icons'>" + keyword.icon + "</i>" + capitalizeFirstLetter(keyword.name);
+          } else {
+            key.textContent = capitalizeFirstLetter(keyword);
+          }
+
+          key.classList.add("chip");
+          keyContainer.appendChild(key);
+        });
+        body.appendChild(keyContainer);
+      }
+      li.appendChild(body);
+      ul.appendChild(li);
+      if (node.children && node.children.length > 0) {
+        // li.classList.add("tree-branch");
+        // var toggle = document.createElement("span");
+        // toggle.classList.add("tree-toggle");
+        // li.insertBefore(toggle, li.firstChild);
+        //<i class="material-icons">check</i>
+
+        /*var icon = document.createElement("i");
+        icon.classList.add("material-icons");
+        li.insertBefore(icon, li.firstChild);*/
+
+        node.children.forEach(function (child) {
+          buildTree(child, body, level + 1);
+        });
+      }
+
+
+    }
+
+    function capitalizeFirstLetter(str) {
+      var words = str.split(' ');
+      for (var i = 0; i < words.length; i++) {
+        var word = words[i];
+        words[i] = word.charAt(0).toUpperCase() + word.slice(1);
+      }
+      return words.join(' ');
+    }
+
+
+    function loadData(data) {
+      var root = document.getElementById("tree");
+      buildTree(data, root, 3);
+    }
+
+	if(data.map){
+		loadData(data.map);
+	}
+
+
+    var miCheckbox = document.getElementById("descripcion");
+
+    if (miCheckbox) {
+      miCheckbox.addEventListener("change", function () {
+        var misDivs = document.getElementsByTagName("blockquote");
+        if (miCheckbox.checked) {
+          // Si el checkbox está seleccionado, mostramos los divs
+
+          for (var i = 0; i < misDivs.length; i++) {
+            misDivs[i].style.display = "block";
+          };
+        } else {
+          // Si el checkbox no está seleccionado, ocultamos los divs
+          for (var i = 0; i < misDivs.length; i++) {
+            misDivs[i].style.display = "none";
+          };
+        }
+      });
+    }
+
+
+    // Inicialización de los Collapsibles
+    document.addEventListener('DOMContentLoaded', function () {
+      var elems = document.querySelectorAll('.collapsible');
+      var instances = M.Collapsible.init(elems);
+      var elems = document.querySelectorAll('.sidenav');
+      var instances = M.Sidenav.init(elems);
+      var sidenavClose = document.querySelector('.sidenav-close');
+      sidenavClose.addEventListener('click', function() {
+        var sidenavInstance = M.Sidenav.getInstance(elems[0]);
+       sidenavInstance.close();
+      });
+    });
+
+
+    $(document).ready(function () {
+      $(".collapsible-header").click(function () {
+        $(".more", this).toggle()
+        $(".less", this).toggle()
+      });
+      var id = "{{ id | safe }}";
+      if (id !== ""){
+        id = "/" + id;
+      }
+      $.get("/maps" + id, function (data) {
+        // Generación de la lista de maps
+        var mapsList = $("#maps-list");
+        var idList = "{{ idList | safe }}"
+        const rutaActual = window.location.pathname;
+        if(data.maps.length > 0){
+          $('#maps-list').sidenav('open');
+        }else{
+          $('#maps-list').sidenav('close');
+          //$('#menu_button').hide();
+          var spaceInputArea = document.getElementById('spaceInputArea');
+          var inputArea = document.getElementById('inputArea');
+	      spaceInputArea.classList.remove('m0');
+	      spaceInputArea.classList.remove('l4');
+          spaceInputArea.classList.add('hide-on-med-only');
+          inputArea.classList.remove('m11');
+	      inputArea.classList.remove('l7');
+          // inputArea.classList.add('l2');
+          // inputArea.classList.add('m12');
+          // inputArea.classList.add('center-align');
+        }
+        $.each(data.maps, function (index, map) {
+          var div = $("<div>");
+          var li;
+          if(map.id === idList) {
+            li = $("<li>", { class: "collection-item waves-effect col s12 z-depth-5 active row", id: map.id  });
+          } else{
+            li = $("<li>", { class: "collection-item waves-effect col s12", id: map.id  });
+          }
+          var icon = 'label';
+          if(map.icon){
+            icon = node.icon;
+          }
+          var i;
+          if(map.id === idList) {
+            i = $("<i>", { class: "material-icons  left more s2", text: icon }).css({ "margin": "0 0 0 0"});
+          }else{
+            i = $("<i>", { class: "material-icons  left more s2", text: icon }).css({ "margin": "0 10px 0 10px"});
+          }
+          var a = $("<a>", { class: "col s12"}).css("margin", "0 0px 0 0");
+          var a2 = $("<a>", { class: "col s12"}).css("margin", "0 0px 0 0");
+          var span = $("<span>", { text: map.name });
+          var maxWidth = $('.s1').width() * 1.9;
+          if (window.innerWidth >= 1000) {
+            maxWidth = $('.s1').width() * 1.9;
+          } else {
+            maxWidth = 1000;
+          }
+          if(map.id === idList) {
+            if("{{ shared | safe }}" === "0") {
+              if (window.innerWidth >= 1000) {
+                maxWidth = $('.s1').width() * 1.60;
+              } else {
+                maxWidth = 100;
+              }
+            }
+            var iDelete = $("<i>", { id: "delete_button", class: "material-icons  right  more s2", text: "delete_forever"}).css("margin", "0 0 0 0");
+            var iEdit = $("<i>", { id: "edit_button", class: "material-icons  right  more s2", text: "edit"}).css("margin", "0 0 0 0");
+            var iCancel = $("<i>", { id: "cancel_button", class: "material-icons  right  more s2", text: "cancel"}).css({"margin": "0 0 0 0", "display":"none"});
+            var iOk = $("<i>", { id: "ok_button", class: "material-icons  right  more s2", text: "check"}).css({"margin": "0 0 0 0", "display":"none"});
+            var iOkEdit = $("<i>", { id: "ok_edit_button", class: "material-icons  right  more s2", text: "check"}).css({"margin": "0 0 0 0", "display":"none"});
+            var span2 = $("<input>", { id: "name_input", class: "col s7", type:"text", value: map.name}).css("margin", "0 0 0 0");
+            span2.css({
+              "vertical-align": "middle",
+              "display": "none",
+              "white-space": "nowrap",
+              "overflow": "hidden",
+              "text-overflow": "ellipsis",
+              "margin": "0 0 0 0",
+              "vertical-align": "middle"
+            });
+            span = $("<span>", { id: "name_span", text: map.name });
+          }
+          //li.attr("style", "color: red;align: middle");
+
+          span.css({
+            "display": "inline-block",
+            "white-space": "nowrap",
+            "overflow": "hidden",
+            "text-overflow": "ellipsis",
+            "margin": "0 0 0 0",
+            "vertical-align": "middle"
+          });
+          a.append(i)
+          a.append(span);
+          if(map.id === idList && "{{ shared | safe }}" === "0") {
+            a.append(span2);
+            a.append(iDelete)
+            a.append(iEdit)
+            a.append(iOk)
+            a.append(iOkEdit)
+            a.append(iCancel)
+          }
+          a.css({
+            "text-overflow": "ellipsis",
+            "white-space": "nowrap"
+          });
+          li.append(a);
+          if(map.id !== idList || "{{ shared | safe }}" !== "0") {
+            i.click(function () {
+              window.location.assign(window.location.origin + "/diagram/" + map.id);
+            });
+            span.click(function () {
+              window.location.assign(window.location.origin + "/diagram/" + map.id);
+            });
+          }else{
+          iDelete.click(function () {
+              $('#ok_button').show();
+              $('#cancel_button').show();
+              $('#delete_button').hide();
+              $('#edit_button').hide();
+              var width = $('.s1').width() * 1.5;
+              i.css("max-width", width +"px");
+              i.css("min-width", "0px");
+            });
+            iEdit.click(function () {
+              $('#ok_edit_button').show();
+              $('#cancel_button').show();
+              $('#delete_button').hide();
+              $('#edit_button').hide();
+              $('#name_span').hide();
+              span2.show();
+              var width = $('.s1').width() * 1.5;
+              i.css("max-width", width +"px");
+              i.css("min-width", "0px");
+            });
+            iCancel.click(function () {
+              $('#ok_button').hide();
+              $('#ok_edit_button').hide();
+              $('#cancel_button').hide();
+              $('#name_span').show();
+              span2.hide();
+              $('#delete_button').show();
+              $('#edit_button').show();
+              var width = $('.s1').width() * 1.7;
+              i.css("max-width", width +"px");
+              i.css("min-width", "0px");
+            });
+            iOk.click(function () {
+              var idList = "{{ idList | safe }}";
+              window.location.assign(window.location.origin + "/delete/" + idList);
+            });
+            iOkEdit.click(function () {
+              var idList = "{{ idList | safe }}";
+              const message = {
+                "id": "{{ idList | safe }}",
+                "text": span2[0].value
+              };
+              fetch(window.location.origin + "/rename", {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(message)
+                })
+                .then(response => {
+                  response.json().then(data => {
+                    document.getElementById("title").textContent = span2[0].value;
+                    span[0].textContent = span2[0].value;
+                    $('#ok_button').hide();
+                    $('#ok_edit_button').hide();
+                    $('#cancel_button').hide();
+                    $('#name_span').show();
+                    span2.hide();
+                    $('#delete_button').show();
+                    $('#edit_button').show();
+                    var width = $('.s1').width() * 1.7;
+                    i.css("max-width", width +"px");
+                    i.css("min-width", "0px");
+                  })
+                })
+              .catch(error => console.error(error => {
+                  $('#ok_button').hide();
+                  $('#ok_edit_button').hide();
+                  $('#cancel_button').hide();
+                  $('#name_span').show();
+                  span2.hide();
+                  $('#delete_button').show();
+                  $('#edit_button').show();
+                  var width = $('.s1').width() * 1.7;
+                  i.css("max-width", width +"px");
+                  i.css("min-width", "0px");
+              }));
+          });
+          }
+          mapsList.append(li);
+        });
+        var sidenavFooter = document.getElementById('sidenav-footer');
+        sidenavFooter.classList.remove('hide');
+        var sidenav = document.getElementById('maps-list');
+        sidenav.insertAdjacentElement('beforeend', sidenavFooter);
+      });
+      $('.sidenav').sidenav();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var elems = document.querySelectorAll(".sidenav");
+      var instances = M.Sidenav.init(elems);
+    });
+
+    const submitButton = document.getElementById("generate");
+    const spinner = document.getElementById("spinner");
+    const myForm = document.getElementById("myForm");
+    const texto = document.getElementById("texto");
+
+    texto.addEventListener("paste", function (e) {
+      setTimeout(function () {
+        // Ajusta la altura del <textarea> para acomodar el contenido
+        texto.style.height = "auto";
+        texto.style.height = texto.scrollHeight + "px";
+        const textareaHeight = texto.getBoundingClientRect().height;
+        const screenHeight = window.innerHeight - 100;
+        if (textareaHeight > screenHeight) {
+          // Si la altura es mayor, ajusta la altura del <textarea> para que no sobrepase la pantalla
+          texto.style.height = screenHeight + "px";
+        }
+      }, 0);
+    });
+
+    var intervalId;
+        var eventSource = new EventSource('/notificaciones');
+          eventSource.addEventListener('notificacion', function(event) {
+          var data = JSON.parse(event.data);
+          if(data.time){
+            var progressBar = document.getElementById('progress-bar');
+            var width = 0;
+            var increment = 100 / (data.time * 1000 / 10); // Calcula el incremento en función de los segundos
+
+        intervalId = setInterval(function() {
+              width += increment;
+              progressBar.style.width = width + '%';
+
+              if (width >= 100) {
+                clearInterval(intervalId);
+              }
+            }, 10); // Actualiza la barra de progreso cada 10 milisegundos
+          }else if(data.parcial){
+            var progressBar = document.getElementById('progress-bar');
+            var width = 0;
+            var increment = 50; // Calcula el incremento en función de los segundos
+            if(data.parcial > 0){
+              (data.total * 2) / data.parcial * 100;
+            }
+        intervalId = setInterval(function() {
+              width += increment;
+              progressBar.style.width = width + '%';
+
+              if (width >= 100) {
+                clearInterval(intervalId);
+              }
+            }, 10); // Actualiza la barra de progreso cada 10 milisegundos
+          }else if(data.error){
+            if(data.error !== '0'){
+              var errorMessage = data.error;
+              document.getElementById("modal-error").innerHTML = errorMessage;
+              var modal = document.getElementById("modal1");
+              var instance = M.Modal.init(modal, {
+                onCloseEnd: function() {
+                  // Se llama cuando se cierra el modal
+                  // Puedes agregar cualquier código que necesites aquí
+                }
+              });
+              instance.open();
+            }
+            spinner.style.display = 'none';
+            submitButton.classList.remove("disabled");
+            texto.style.height = texto.scrollHeight + "px";
+          }else if(data.id){
+            window.location.assign(window.location.origin + "/diagram/" + data.id);
+          }
+        });
+
+    submitButton.addEventListener('click', function () {
+      if (texto.value.length < 14000) {
+        spinner.style.display = 'block';
+        submitButton.classList.add("disabled");
+        const message = {
+          "id": "{{ idList | safe }}",
+          "text": texto.value,
+          "size": $('#size')[0].value
+        };
+        fetch(window.location.origin + "/generar", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Connection': 'keep-alive'
+          },
+          body: JSON.stringify(message)
+        })
+        .catch(error => console.error(error => {
+              spinner.style.display = 'none';
+              submitButton.classList.remove("disabled");
+              texto.value = "";
+              texto.style.height = texto.scrollHeight + "px";
+        }));
+      }
+    });
+
+    
+    $(document).ready(function() {
+      $('textarea#texto').characterCounter();
+      $('#texto').on('input', function() {
+        var length = $(this).val().length;
+        if (length > 14000) {
+          $('#generate').addClass("disabled").prop("disabled", true);
+        } else {
+          $('#generate').removeClass("disabled").prop("disabled", false);
+        }
+      });
+      // Obtén el interruptor
+      var toggleSwitch = $('#toggle');
+      var darkmode = "{{ darkmode | safe }}";
+      if(darkmode == "True"){
+        $('body').addClass('dark-mode');
+        $("#toggle").prop("checked", true);
+      }else{
+        $('body').removeClass('dark-mode')
+      }
+
+      // Agrega un listener para el evento change
+      toggleSwitch.change(function() {
+        // Si el interruptor está activado (chequeado)
+        if (toggleSwitch.prop('checked')) {
+          // Cambia el tema a modo nocturno
+          $('body').addClass('dark-mode');
+          fetch(window.location.origin + "/darkmode/1", {
+                    method: 'POST'
+          })
+        } else {
+          // De lo contrario, cambia el tema a modo de luz
+          $('body').removeClass('dark-mode')
+          fetch(window.location.origin + "/darkmode/0", {
+                    method: 'POST'
+          });
+        }
+      });
+    });
+  </script>
+
 </body>
 
 </html>
