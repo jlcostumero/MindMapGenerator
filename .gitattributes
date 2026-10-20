@@ -1,8 +1,12 @@
 # Configuración de GitHub Linguist
-# Tratar librerías externas y bundles compilados de JS como 'vendored'
-# para que el lenguaje principal reconocido del proyecto sea Python.
-
+# Trata librerías y bundles JS como vendored
 js/* linguist-vendored
 js/** linguist-vendored
 resources/* linguist-vendored
 resources/** linguist-vendored
+css/* linguist-vendored
+css/** linguist-vendored
+
+# Trata plantillas HTML de interfaz como no computables en el cálculo del lenguaje primario
+templates/* linguist-detectable=false
+templates/** linguist-detectable=false
